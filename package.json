@@ -1,0 +1,11 @@
+{
+  "name": "gsd-back",
+  "version": "1.0.0",
+  "description": "'Back-End Application Get Shit Done'",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Matildad de Souza, Camille Doizelet, Valentin de Guillebon, Yasmine Kharroubi, Eurico Da Custodia",
+  "license": "ISC"
+}
