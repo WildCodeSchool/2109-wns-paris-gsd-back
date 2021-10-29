@@ -8,7 +8,7 @@
     "start": "ts-node-dev --respawn src/server.ts",
     "lint": "eslint . "
   },
-  "author": "",
+  "author": "Matildad de Souza, Camille Doizelet, Valentin de Guillebon, Yasmine Kharroubi, Eurico Da Custodia",
   "license": "ISC",
   "dependencies": {
     "apollo-server-express": "^3.4.0",
