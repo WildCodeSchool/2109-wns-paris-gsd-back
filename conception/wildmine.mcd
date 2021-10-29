@@ -1,0 +1,17 @@
+ASSET: url
+has_asset, 11 ASSET, 0N TASK
+belongs_to, 0N PROJECT, 11 TASK
+PROJECT:status, estimate_time, beginning_date
+project_has_notif,  0N PROJECT, 1N NOTIFICATION: user, viewed, created_at
+
+has_comment, 0N TASK, 11 COMMENT
+TASK: scheduled_time, progress, status, title, description
+is_assigned, 0N USER, 01 TASK
+has_project, 0N PROJECT, 0N USER
+NOTIFICATION: notif_type
+
+COMMENT: content, created_at
+has_author, 0N USER, 11 COMMENT
+USER: name, email, password
+has_role, 1N ROLE, 01 USER
+ROLE: title
