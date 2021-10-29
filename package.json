@@ -1,11 +1,42 @@
 {
-  "name": "gsd-back",
+  "name": "typescript",
   "version": "1.0.0",
-  "description": "'Back-End Application Get Shit Done'",
-  "main": "index.js",
+  "description": "",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node index.js"
+    "build": "tsc",
+    "start": "ts-node-dev --respawn src/server.ts",
+    "lint": "eslint . "
   },
-  "author": "Matildad de Souza, Camille Doizelet, Valentin de Guillebon, Yasmine Kharroubi, Eurico Da Custodia",
-  "license": "ISC"
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server-express": "^3.4.0",
+    "class-validator": "^0.13.1",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "eslint-plugin-prettier": "^3.4.1",
+    "express": "^4.17.1",
+    "graphql": "^15.7.2",
+    "pg": "^8.7.1",
+    "postgres-interval": "^4.0.0",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^1.1.1",
+    "typeorm": "^0.2.38"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/graphql": "^14.5.0",
+    "@types/node": "^16.11.6",
+    "@typescript-eslint/eslint-plugin": "^4.29.3",
+    "@typescript-eslint/parser": "^4.29.3",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-typescript": "^14.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.24.2",
+    "prettier": "^2.3.2",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.3.5"
+  }
 }
