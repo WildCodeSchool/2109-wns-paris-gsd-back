@@ -41,6 +41,6 @@ Please following the file .env.example and create a copy of this and change in P
 
 # Start Project
 
-First time `yarn` to install dependencies
+First time `yarn` to install dependencies or update dependencies
 
 `yarn start` to start project, enjoy...
