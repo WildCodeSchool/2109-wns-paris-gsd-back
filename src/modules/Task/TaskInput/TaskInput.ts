@@ -1,4 +1,3 @@
-import { IPostgresInterval } from "postgres-interval";
 import { Field, InputType } from "type-graphql";
 
 @InputType()
@@ -10,7 +9,7 @@ export default class TaskInput {
     description: string;
 
     @Field(() => String)
-    scheduled_time_interval: IPostgresInterval;
+    scheduledTimeInterval: string;
   
     
     @Field()

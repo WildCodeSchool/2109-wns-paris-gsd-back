@@ -6,7 +6,8 @@ import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import {  buildSchema } from 'type-graphql';
 import { createConnection } from 'typeorm';
-import TaskResolver  from './modules/Task/Task';
+import TaskResolver  from './modules/Task/Task.resolver';
+import CommentResolver from './modules/Comment/Comment.resolver';
 
 dotenv.config();
 
@@ -20,7 +21,7 @@ const start = async () => {
   });
 
   const schema = await buildSchema({
-    resolvers: [TaskResolver],
+    resolvers: [TaskResolver, CommentResolver],
   });
 
   const apolloServer = new ApolloServer({ schema });

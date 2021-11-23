@@ -1,6 +1,8 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { IPostgresInterval } from 'postgres-interval';
 import { Field, ID, ObjectType, Root } from 'type-graphql';
+// eslint-disable-next-line import/no-cycle
+import Comment from './Comment';
 
 
 @Entity()
@@ -11,30 +13,39 @@ class Task extends BaseEntity {
   id: number;
 
   @Field()
-  @Column()
+  @Column({type: 'varchar'})
   title: string;
 
   @Field()
-  @Column()
+  @Column({type: 'text'})
   description: string;
 
-  @Column({type: 'interval'})
-  scheduled_time_interval: IPostgresInterval;
+  @Column({name:"scheduled_time_interval", type: 'interval'})
+  scheduledTimeInterval: IPostgresInterval;
 
   
   @Field()
-  @Column()
+  @Column({type: "int"})
   advancement: number;
   
   @Field()
-  @Column()
+  @Column({type: 'varchar'})
   status: string;
   
   // Field resolver (need to calculate time in hours)
   @Field(() => String)
-  scheduled_time(@Root() parent: Task  ) {
-    return parent.scheduled_time_interval.hours;
+  scheduled_time(@Root() parent: Task ): string {
+   
+    // return `${parent.scheduledTimeInterval.hours}`;
+   
+    return parent.scheduledTimeInterval.toPostgres();
+
   }
+
+  @Field(() => [Comment])
+  @OneToMany(() => Comment, comment => comment.task)
+  comments: Comment[];
+
 }
 
 export default Task;
