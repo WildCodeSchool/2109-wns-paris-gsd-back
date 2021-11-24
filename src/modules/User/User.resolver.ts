@@ -8,7 +8,7 @@ import LoginInput from './LoginInput/LoginInput'
 
 @Resolver(User)
 export default class UserResolver {
-  @Mutation(() => User)
+  @Mutation(() => String)
 
   // Handle the user login
   async loginUser(
