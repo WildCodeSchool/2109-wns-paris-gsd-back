@@ -1,4 +1,3 @@
-import { getConnection } from 'typeorm'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Database from 'better-sqlite3'
 
@@ -10,8 +9,7 @@ const testdb = new Database(':memory:', {
 })
 
 beforeAll(async () => {
-  await connectSqlite()
-  connection = getConnection('test-db')
+  connection = await connectSqlite()
 })
 
 afterAll(async () => {

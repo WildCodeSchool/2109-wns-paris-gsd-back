@@ -21,9 +21,11 @@ export default class UserResolver {
       return new GraphQLError('Something went wrong')
     }
     const validPassword = await bcrypt.compare(password, user.password)
+
     if (!validPassword) {
       return new GraphQLError('Wrong password')
     }
+   
     const token = sign({ id: user.id, username: user.username }, 'secretcaca', {
       expiresIn: '24h',
     })

@@ -1,5 +1,5 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { IPostgresInterval } from 'postgres-interval';
+// import { IPostgresInterval } from 'postgres-interval';
 import { Field, ID, ObjectType, Root } from 'type-graphql';
 // eslint-disable-next-line import/no-cycle
 import Comment from './Comment';
@@ -20,8 +20,8 @@ class Task extends BaseEntity {
   @Column({type: 'text'})
   description: string;
 
-  @Column({name:"scheduled_time_interval", type: 'interval'})
-  scheduledTimeInterval: IPostgresInterval;
+  @Column({name:"scheduled_time_interval", type: 'text'})
+  scheduledTimeInterval: string;
 
   
   @Field()
@@ -38,7 +38,7 @@ class Task extends BaseEntity {
    
     // return `${parent.scheduledTimeInterval.hours}`;
    
-    return parent.scheduledTimeInterval.toPostgres();
+    return parent.scheduledTimeInterval;
 
   }
 

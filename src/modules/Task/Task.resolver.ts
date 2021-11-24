@@ -1,7 +1,5 @@
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
 
-import parse from 'postgres-interval';
-
 import Task from "../../entity/Task";
 import TaskInput from "./TaskInput/TaskInput";
 
@@ -31,7 +29,7 @@ export default class TaskResolver {
      @Mutation(() => Task)
      async addTask(@Arg("data") data: TaskInput): Promise<Task> {
         
-        const task = Task.create({...data, scheduledTimeInterval: parse(data.scheduledTimeInterval)});
+        const task = Task.create({...data});
 
         await task.save();
 

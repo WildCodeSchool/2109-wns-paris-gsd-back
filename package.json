@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "test" : "jest --watchAll",
+    "test": "jest --watchAll",
     "build": "tsc",
     "start": "ts-node-dev --respawn src/index.ts",
     "lint": "eslint . "
@@ -43,6 +43,7 @@
     "eslint-config-airbnb-typescript": "^14.0.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.2",
+    "jest": "^27.3.1",
     "prettier": "^2.3.2",
     "ts-jest": "^27.0.7",
     "ts-node-dev": "^1.1.8",
