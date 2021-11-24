@@ -1,42 +1,16 @@
-import * as dotenv from 'dotenv'
-
-import 'reflect-metadata'
-
-import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
 import { buildSchema } from 'type-graphql'
-import { createConnection } from 'typeorm'
 import TaskResolver from './modules/Task/Task.resolver'
 import CommentResolver from './modules/Comment/Comment.resolver'
 import UserResolver from './modules/User/User.resolver'
 
-dotenv.config()
-
-const start = async () => {
-  await createConnection({
-    type: 'postgres',
-    url: process.env.DB_URL,
-    synchronize: true,
-    logging: true,
-    entities: ['src/entity/*.*'],
-  })
-
+async function createServer() {
   const schema = await buildSchema({
     resolvers: [TaskResolver, CommentResolver, UserResolver],
   })
-
-  const apolloServer = new ApolloServer({ schema })
-
-  const app = express()
-
-  await apolloServer.start()
-  apolloServer.applyMiddleware({ app })
-
-  app.listen(process.env.PORT || 3000, () => {
-    console.log(
-      `server started at http://localhost:${process.env.PORT || 3000}/graphql`
-    )
-  })
+  // Create the GraphQL server
+  const server = new ApolloServer({ schema })
+  return server
 }
 
-start()
+export default createServer
