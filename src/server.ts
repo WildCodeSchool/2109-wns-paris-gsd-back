@@ -8,6 +8,7 @@ import { buildSchema } from 'type-graphql'
 import { createConnection } from 'typeorm'
 import TaskResolver from './modules/Task/Task.resolver'
 import CommentResolver from './modules/Comment/Comment.resolver'
+import UserResolver from './modules/User/User.resolver'
 
 dotenv.config()
 
@@ -21,7 +22,7 @@ const start = async () => {
   })
 
   const schema = await buildSchema({
-    resolvers: [TaskResolver, CommentResolver],
+    resolvers: [TaskResolver, CommentResolver, UserResolver],
   })
 
   const apolloServer = new ApolloServer({ schema })

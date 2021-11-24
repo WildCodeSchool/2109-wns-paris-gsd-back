@@ -9,10 +9,14 @@ import LoginInput from './LoginInput/LoginInput'
 @Resolver(User)
 export default class UserResolver {
   @Mutation(() => User)
+
+  // Handle the user login
   async loginUser(
     @Arg('data') { username, password }: LoginInput
   ): Promise<string | GraphQLError> {
+    // we search the user who wants to log among the list of users
     const user = await User.findOne({ username })
+    // if user
     if (!user) {
       return new GraphQLError('Something went wrong')
     }
