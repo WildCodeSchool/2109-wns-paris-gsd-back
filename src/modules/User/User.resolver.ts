@@ -1,5 +1,5 @@
 import { GraphQLError } from 'graphql'
-import { Arg, Mutation, Resolver } from 'type-graphql'
+import { Arg, Query, Resolver } from 'type-graphql'
 import bcrypt from 'bcrypt'
 import { sign } from 'jsonwebtoken'
 
@@ -8,7 +8,7 @@ import LoginInput from './LoginInput/LoginInput'
 
 @Resolver(User)
 export default class UserResolver {
-  @Mutation(() => String)
+  @Query(() => String)
 
   // Handle the user login
   async loginUser(
@@ -25,7 +25,7 @@ export default class UserResolver {
     if (!validPassword) {
       return new GraphQLError('Wrong password')
     }
-   
+
     const token = sign({ id: user.id, username: user.username }, 'secretcaca', {
       expiresIn: '24h',
     })
