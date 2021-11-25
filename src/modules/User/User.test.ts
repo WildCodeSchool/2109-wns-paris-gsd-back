@@ -23,7 +23,7 @@ describe('login resolver', () => {
 
       await user.save()
 
-      const loginUserMutation = gql`
+      const loginUserQuery = gql`
         query LoginUser($data: LoginInput!) {
           loginUser(data: $data)
         }
@@ -32,7 +32,7 @@ describe('login resolver', () => {
       const variables = { data: { username: 'toto', password: 'toto' } }
 
       const { data } = await server.executeOperation({
-        query: loginUserMutation,
+        query: loginUserQuery,
         variables,
       })
 
