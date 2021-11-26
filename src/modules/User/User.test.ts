@@ -25,18 +25,20 @@ describe('login resolver', () => {
 
       const loginUserQuery = gql`
         query LoginUser($data: LoginInput!) {
-          loginUser(data: $data)
+          loginUser(data: $data) {
+            token
+          }
         }
       `
 
       const variables = { data: { username: 'toto', password: 'toto' } }
 
-      const { data } = await server.executeOperation({
+      const { data, errors } = await server.executeOperation({
         query: loginUserQuery,
         variables,
-      })
+      });
 
-      expect(data).toBeTruthy()
+      expect(!errors && data!.loginUser.token).toBeTruthy()
     })
   })
 })
