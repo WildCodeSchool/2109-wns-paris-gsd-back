@@ -1,19 +1,26 @@
+// eslint-disable-next-line max-classes-per-file
 import { GraphQLError } from 'graphql'
-import { Arg, Query, Resolver } from 'type-graphql'
+import { Arg, Field, ObjectType, Query, Resolver } from 'type-graphql'
 import bcrypt from 'bcrypt'
 import { sign } from 'jsonwebtoken'
-
 import User from '../../entity/User'
 import LoginInput from './LoginInput/LoginInput'
 
+@ObjectType()
+class LoginAnswer {
+  @Field()
+  token: string
+
+}
+
 @Resolver(User)
 export default class UserResolver {
-  @Query(() => String)
+  @Query(() => LoginAnswer)
 
   // Handle the user login
   async loginUser(
     @Arg('data') { username, password }: LoginInput
-  ): Promise<string | GraphQLError> {
+  ): Promise<LoginAnswer | GraphQLError> {
     // we search the user who wants to log among the list of users
     const user = await User.findOne({ username })
     // if user
@@ -30,6 +37,6 @@ export default class UserResolver {
       expiresIn: '24h',
     })
 
-    return token
+    return {token}
   }
 }
