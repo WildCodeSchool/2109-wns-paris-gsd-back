@@ -1,5 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Field, ID, ObjectType } from 'type-graphql';
+
 // eslint-disable-next-line import/no-cycle
 import Task from './Task';
 

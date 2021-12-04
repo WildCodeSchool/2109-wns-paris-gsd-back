@@ -1,6 +1,10 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
 import { Field, ID, ObjectType } from 'type-graphql'
+
+// eslint-disable-next-line import/no-cycle
+import Task from './Task';
+
 
 @Entity()
 @ObjectType()
@@ -28,6 +32,10 @@ class User extends BaseEntity {
   @Field()
   @Column({ type: 'text' })
   password: string
+
+  @Field(() => [Task])
+  @OneToMany(() => Task, task => task.taskCreator)
+  tasks: Task[];
 }
 
 export default User

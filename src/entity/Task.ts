@@ -1,9 +1,21 @@
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-// import { IPostgresInterval } from 'postgres-interval';
-import { Field, ID, ObjectType, Root } from 'type-graphql';
-// eslint-disable-next-line import/no-cycle
-import Comment from './Comment';
+/* eslint-disable import/no-cycle */
+import { 
+  BaseEntity,
+  Column,
+  CreateDateColumn, 
+  Entity,
+  OneToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  JoinColumn
+} from 'typeorm';
 
+import { Field, ID, ObjectType} from 'type-graphql';
+
+import Comment  from './Comment'
+import Project from './Project'
+import User from './User'
+import Asset from './Asset'
 
 @Entity()
 @ObjectType()
@@ -20,10 +32,14 @@ class Task extends BaseEntity {
   @Column({type: 'text'})
   description: string;
 
-  @Column({name:"scheduled_time_interval", type: 'text'})
-  scheduledTimeInterval: string;
-
+  @Field()
+  @CreateDateColumn({type: "timestamptz", name: "created_at"})
+  starting_time: Date;
   
+  @Field()
+  @Column({type: "timestamptz"})
+  ending_time: Date;
+
   @Field()
   @Column({type: "int"})
   advancement: number;
@@ -32,20 +48,23 @@ class Task extends BaseEntity {
   @Column({type: 'varchar'})
   status: string;
   
-  // Field resolver (need to calculate time in hours)
-  @Field(() => String)
-  scheduled_time(@Root() parent: Task ): string {
-   
-    // return `${parent.scheduledTimeInterval.hours}`;
-   
-    return parent.scheduledTimeInterval;
-
-  }
-
   @Field(() => [Comment])
   @OneToMany(() => Comment, comment => comment.task)
   comments: Comment[];
 
+  @Field(() => Project)
+  @ManyToOne(() => Project, (project) => project.tasks)
+  @JoinColumn({name: 'project_id', referencedColumnName: 'id'})
+  project: Project;
+
+  @Field(() => [User])
+  @ManyToOne(() => User, (user) => user.tasks)
+  @JoinColumn({name: 'user_id', referencedColumnName: 'id'})
+  taskCreator: User;
+
+  @Field(() => [Asset])
+  @OneToMany(() => Asset, asset => asset.task)
+  assets: Asset[];
 }
 
 export default Task;
