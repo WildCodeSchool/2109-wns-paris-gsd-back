@@ -61,7 +61,6 @@ class Task extends BaseEntity {
     const estimee = Math.round(
       (end.getTime() - begin.getTime()) / 1000 / 3600 / 24
     )
-    console.log(estimee)
 
     return estimee
   }
@@ -74,7 +73,6 @@ class Task extends BaseEntity {
   @Column({
     type: 'enum',
     enum: StatusName,
-    unique: true,
   })
   status: StatusName
 

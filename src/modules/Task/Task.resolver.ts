@@ -26,7 +26,7 @@ export default class TaskResolver {
   }
 
   @Mutation(() => Task)
-  async updateTask(
+  async updateTaskbyID(
     @Arg('data') data: UpdateDeleteTaskInput
   ): Promise<Task | GraphQLError> {
     try {
@@ -34,6 +34,19 @@ export default class TaskResolver {
 
       const updatedTask = await Task.findOne({ id: data.id })
       return updatedTask as Task
+    } catch (error) {
+      return new GraphQLError('update Error')
+    }
+  }
+
+  @Mutation(() => Task)
+  async deleTaskbyID(
+    @Arg('data') data: UpdateDeleteTaskInput
+  ): Promise<Task | GraphQLError> {
+    try {
+      const taskTodelete = await Task.findOne({ id: data.id })
+      await Task.delete<Task>(data.id)
+      return taskTodelete as Task
     } catch (error) {
       return new GraphQLError('update Error')
     }
