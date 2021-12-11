@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { 
+import {
   BaseEntity,
   Column,
   CreateDateColumn,
@@ -7,10 +7,10 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
-  PrimaryGeneratedColumn
-} from 'typeorm';
+  PrimaryGeneratedColumn,
+} from 'typeorm'
 
-import { Field, ID, ObjectType } from 'type-graphql';
+import { Field, ID, ObjectType } from 'type-graphql'
 
 import Task from './Task'
 import User from './User'
@@ -18,44 +18,40 @@ import User from './User'
 @Entity()
 @ObjectType()
 class Project extends BaseEntity {
+  @Field(() => ID)
+  @PrimaryGeneratedColumn()
+  id: number
 
-    @Field(() => ID)
-    @PrimaryGeneratedColumn()
-    id: number;
+  @Field()
+  @Column({ type: 'text', default: 'To do' })
+  status: string
 
-    @Field()
-    @Column({type: 'text', default : 'To do'})
-    status: string;
+  @Field()
+  @CreateDateColumn({ name: 'created_at' })
+  starting_time: Date
 
-    @Field()
-    @CreateDateColumn({name: "created_at"})
-    starting_time: Date;
+  @Field()
+  @Column({ type: 'timestamptz' })
+  ending_time: Date
 
-    @Field()
-    @Column({type: "timestamptz"})
-    ending_time: Date;
+  @Field(() => [Task])
+  @OneToMany(() => Task, (task) => task.project)
+  tasks: Task[]
 
-    @Field(() => [Task])
-    @OneToMany(() => Task, (task) => task.project)
-    tasks: Task[];
-
-    @Field(() => [User])
-    // @ManyToMany(() => User, (user) => user.projects)
-    @ManyToMany(() => User)
-    @JoinTable({
-      name: "user_has_projects",
-      joinColumn: {
-          name: "project_id",
-          referencedColumnName: "id"
-      },
-      inverseJoinColumn: {
-          name: "user_id",
-          referencedColumnName: "id"
-      }
+  @Field(() => [User])
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'user_has_projects',
+    joinColumn: {
+      name: 'project_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
   })
-    users: User[];
-
+  users: User[]
 }
 
-
-export default Project;
+export default Project

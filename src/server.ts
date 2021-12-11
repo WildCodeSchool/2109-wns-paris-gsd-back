@@ -3,10 +3,11 @@ import { buildSchema } from 'type-graphql'
 import TaskResolver from './modules/Task/Task.resolver'
 import CommentResolver from './modules/Comment/Comment.resolver'
 import UserResolver from './modules/User/User.resolver'
+import RoleResolver from './modules/Role/Role.resolver'
 
 async function createServer() {
   const schema = await buildSchema({
-    resolvers: [TaskResolver, CommentResolver, UserResolver],
+    resolvers: [TaskResolver, CommentResolver, UserResolver, RoleResolver],
   })
   // Create the GraphQL server
   const server = new ApolloServer(
