@@ -46,11 +46,11 @@ class Task extends BaseEntity {
   description: string
 
   @Field()
-  @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at' })
   starting_time: Date
 
   @Field()
-  @Column({ type: 'timestamptz' })
+  @Column()
   ending_time: Date
 
   @Field(() => Number, { nullable: true })
@@ -71,8 +71,7 @@ class Task extends BaseEntity {
 
   @Field()
   @Column({
-    type: 'enum',
-    enum: StatusName,
+    type: 'text',
   })
   status: StatusName
 
