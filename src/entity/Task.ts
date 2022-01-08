@@ -86,7 +86,7 @@ class Task extends BaseEntity {
   project: Project
 
   //! maybe change name of taskCreator by assignee / smthg else
-  @Field(() => [User])
+  @Field(() => User)
   @ManyToOne(() => User, (user) => user.tasks)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   taskCreator: User

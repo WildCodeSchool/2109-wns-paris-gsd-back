@@ -1,6 +1,6 @@
 // eslint-disable-next-line max-classes-per-file
 import { GraphQLError } from 'graphql'
-import { Arg, Field, ObjectType, Query, Resolver, Mutation } from 'type-graphql'
+import { Arg, Query, Resolver, Mutation } from 'type-graphql'
 import User from '../../entity/User'
 import Role, { RoleName}  from '../../entity/Role';
 import UserInput from './UserInput/UserInput';
