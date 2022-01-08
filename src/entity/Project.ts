@@ -31,7 +31,7 @@ class Project extends BaseEntity {
   starting_time: Date
 
   @Field()
-  @Column({ type: 'timestamptz' })
+  @Column({ type: 'text' })
   ending_time: Date
 
   @Field(() => [Task])
