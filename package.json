@@ -2,11 +2,12 @@
   "name": "typescript",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.js",
+  "main": "index.js",
   "scripts": {
     "test": "jest --watchAll",
     "build": "tsc",
-    "start": "ts-node-dev --respawn src/index.ts",
+    "start": "yarn build && node dist/index.js",
+    "start:dev": "ts-node-dev --respawn src/index.ts",
     "lint": "eslint . "
   },
   "author": "Matildad de Souza, Camille Doizelet, Valentin de Guillebon, Yasmine Kharroubi, Eurico Da Custodia",
