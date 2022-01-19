@@ -1,7 +1,7 @@
 services:
   api:
     build: ./
-    command: yarn start:watch
+    command: yarn start
     stdin_open: true
     volumes:
       - ./src:/app/src
