@@ -1,6 +1,8 @@
 services:
   api:
-    build: ./Docker/prod/
+    build:
+      context: .
+      dockerfile: ./Dockerfile-prod
     command: yarn start
     stdin_open: true
     volumes:
@@ -9,14 +11,14 @@ services:
       - ${PORT}:8000
     environment:
       - NODE_ENV=production
-      - DB_URL=postgres://postgres:postgres@postgres/wildermine
+      - DB_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/wildermine
 
   postgres:
     image: postgres:14.1
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - '5438:5432'
     volumes: 
