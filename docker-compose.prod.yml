@@ -1,14 +1,14 @@
 services:
   api:
-    build: ./Docker/dev/
-    command: yarn start:dev
+    build: ./Docker/prod/
+    command: yarn start
     stdin_open: true
     volumes:
       - ./src:/app/src
     ports:
       - ${PORT}:8000
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - DB_URL=postgres://postgres:postgres@postgres/wildermine
 
   postgres:
