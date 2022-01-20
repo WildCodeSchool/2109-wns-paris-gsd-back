@@ -1,4 +1,15 @@
 services:
+  front:
+    build:
+      context: ../front
+      dockerfile: ./Dockerfile-dev
+    command: yarn start
+    ports:
+      - 3000:3000
+    volumes:
+      - ../front/src:/app/src
+    depends_on:
+      - api
   api:
     build: 
       context: .
