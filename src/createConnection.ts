@@ -1,4 +1,11 @@
+import dotenv from 'dotenv';
 import { createConnection } from 'typeorm'
+
+dotenv.config({
+  path: process.env.NODE_ENV === 'development' ? 'env-dev.env' : 'env-prod.env'
+})
+
+console.log(process.env.NODE_ENV);
 
 export async function connectPostgres() {
   await createConnection({
@@ -6,7 +13,7 @@ export async function connectPostgres() {
     url: process.env.DB_URL,
     synchronize: true,
     logging: true,
-    entities: ['src/entity/*.*'],
+    entities: [process.env.TYPEORM_ENTITIES as string],
   })
 }
 
@@ -16,7 +23,7 @@ export async function connectSqlite() {
     database: ':memory:',
     synchronize: true,
     logging: true,
-    entities: ['src/entity/*.*'],
+    entities: [process.env.TYPEORM_ENTITIES as string],
   })
 
   return connection;
