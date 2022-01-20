@@ -28,8 +28,8 @@ services:
 
   postgres:
     env_file:
-      - ./.env
-      - env-prod.env
+      - .env
+      - .env-prod.env
     image: postgres:14.1
     restart: always
     volumes: 
