@@ -5,3 +5,4 @@ env-prod.env
 postgres-data
 dist
 built
+.env
