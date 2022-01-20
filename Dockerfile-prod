@@ -5,6 +5,7 @@ WORKDIR /app
 COPY tsconfig.json ./
 COPY package*.json ./
 COPY .env ./
+COPY env-prod.env ./
 
 
 RUN yarn
@@ -14,7 +15,7 @@ COPY src ./src
 
 RUN yarn build
 
-FROM node:alpine
+FROM node:lts-alpine
 
 WORKDIR /app
 
@@ -23,6 +24,8 @@ COPY --from=builder /app/dist /app/dist
 RUN apk --no-cache add curl
 
 COPY package*.json ./
+COPY .env ./
+COPY env-prod.env ./
 
 RUN yarn install --production
 

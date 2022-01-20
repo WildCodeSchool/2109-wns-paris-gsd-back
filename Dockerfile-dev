@@ -6,6 +6,7 @@ COPY tsconfig.json ./
 COPY package*.json ./
 COPY yarn.lock ./
 COPY .env ./
+COPY env-dev.env ./
 
 RUN yarn
 
