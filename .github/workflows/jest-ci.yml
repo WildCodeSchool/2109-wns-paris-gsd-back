@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: '^17'
       - run: yarn
-      - run: yarn test:ci
+      - run: TYPEORM_ENTITIES=src/entity/*.ts yarn test:ci
 
       # - name: Tests ✅
       #   if: ${{ success() }}
