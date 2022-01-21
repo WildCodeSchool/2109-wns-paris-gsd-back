@@ -21,6 +21,9 @@ jobs:
         with:
           username: getshitdonewild
           password: 95585104-449b-4b46-9bf7-a01b2cbfffff
+      - 
+        name: Check out code
+        uses: actions/checkout@v2
       -
         name: Build and push
         id: docker_build
