@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=development jest --watchAll",
     "build": "tsc",
     "start": "node ./dist/index.js",
     "start:dev": "ts-node-dev --respawn src/index.ts",
-    "lint": "eslint . "
+    "lint": "eslint . ",
+    "test": "NODE_ENV=development jest --watchAll",
+    "test:ci": "NODE_ENV=development jest"
   },
   "author": "Matildad de Souza, Camille Doizelet, Valentin de Guillebon, Yasmine Kharroubi, Eurico Da Custodia",
   "license": "ISC",
