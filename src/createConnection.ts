@@ -22,7 +22,7 @@ export async function connectSqlite() {
     type: 'better-sqlite3',
     database: ':memory:',
     synchronize: true,
-    logging: true,
+    // logging: true,
     entities: [process.env.TYPEORM_ENTITIES as string],
   })
 
