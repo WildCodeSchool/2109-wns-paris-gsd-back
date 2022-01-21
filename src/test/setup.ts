@@ -5,7 +5,7 @@ import { connectSqlite } from '../createConnection'
 
 let connection: any
 const testdb = new Database(':memory:', {
-  verbose: console.log,
+ // verbose: console.log,
 })
 
 beforeAll(async () => {

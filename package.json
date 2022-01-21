@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll",
+    "test": "NODE_ENV=development jest --watchAll",
     "build": "tsc",
     "start": "node ./dist/index.js",
     "start:dev": "ts-node-dev --respawn src/index.ts",
