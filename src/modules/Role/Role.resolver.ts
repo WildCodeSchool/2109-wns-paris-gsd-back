@@ -23,3 +23,5 @@ export default class RoleResolver {
   }
 }
 
+
+// TODO Assign a role for user (should have)
