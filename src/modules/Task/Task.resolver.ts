@@ -31,7 +31,7 @@ export default class TaskResolver {
   }
 
   @Mutation(() => Task)
-  async updateTaskbyID(
+  async updateTaskbyId(
     @Arg('data') data: UpdateDeleteTaskInput
   ): Promise<Task | GraphQLError> {
     try {
@@ -64,7 +64,7 @@ export default class TaskResolver {
   }
 
   @Mutation(() => Task)
-  async deleTaskbyID(
+  async deleteTaskbyId(
     @Arg('data') data: UpdateDeleteTaskInput
   ): Promise<Task | GraphQLError> {
     try {
