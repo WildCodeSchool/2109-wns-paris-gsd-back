@@ -11,6 +11,8 @@ import { Field, ID, ObjectType } from 'type-graphql'
 
 import User from './User'
 
+import ENUM_DATA_TYPE from '../constants/ENUM_DATA_TYPE';
+
 export enum RoleName {
   ADMIN = 'ADMIN',
   MANAGER = 'MANAGER',
@@ -26,7 +28,7 @@ class Role extends BaseEntity {
   id: number
 
   @Field()
-  @Column({ type: 'text', default: RoleName.USER, unique: true })
+  @Column({ type: ENUM_DATA_TYPE, enum: ENUM_DATA_TYPE === 'enum' ? RoleName : undefined,  default: RoleName.USER, unique: true })
   label: RoleName
 
   @Field(() => [User])
@@ -35,3 +37,7 @@ class Role extends BaseEntity {
 }
 
 export default Role
+
+// type: "enum",
+// enum: UserRole,
+// default: UserRole.GHOST

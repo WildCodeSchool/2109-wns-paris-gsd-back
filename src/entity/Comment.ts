@@ -15,7 +15,6 @@ import User from './User'
 
 import DATE_TIME_TYPES from '../constants/DATE_TIME_TYPE';
 
-console.log(process.env.JEST)
 @Entity()
 @ObjectType()
 class Comment extends BaseEntity {
