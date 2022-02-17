@@ -18,6 +18,14 @@ export default class TaskResolver {
     return tasks
   }
 
+  @Query(() => [Task])
+  async getTasksByProjectId(): Promise<Task[]> {
+    // TODO get all tasks by project id
+
+
+    return tasks
+  }
+
   @Mutation(() => Task)
   async addTask(@Arg('data') {creator_id, ...taskData}: TaskInput): Promise<Task> {
     
