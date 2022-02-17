@@ -2,10 +2,12 @@
 import Database from 'better-sqlite3'
 
 import { connectSqlite } from '../createConnection'
+import Role, { RoleName } from '../entity/Role';
+
 
 let connection: any
 const testdb = new Database(':memory:', {
- // verbose: console.log,
+  // verbose: console.log,
 })
 
 beforeAll(async () => {
@@ -23,5 +25,10 @@ beforeEach(async () => {
   entities.forEach(async (entity: any) => {
     const repository = connection.getRepository(entity.name)
     await repository.query(`DELETE FROM ${entity.tableName}`)
+
   })
+  await Role.create({ label: RoleName.ADMIN }).save();
+  await Role.create({ label: RoleName.MANAGER }).save();
+  await Role.create({ label: RoleName.DEVELOPER }).save();
+  await Role.create({ label: RoleName.USER }).save();
 })

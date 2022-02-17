@@ -12,9 +12,9 @@ async function createServer() {
   })
   // Create the GraphQL server
   const server = new ApolloServer(
-    { 
+    {
       schema,
-      context: ({req, res}) => ({req, res}),
+      context: ({ req, res }) => ({ req, res }),
     })
   return server;
 }
