@@ -4,10 +4,11 @@ import TaskResolver from './modules/Task/Task.resolver'
 import CommentResolver from './modules/Comment/Comment.resolver'
 import UserResolver from './modules/User/User.resolver'
 import RoleResolver from './modules/Role/Role.resolver'
+import ProjectResolver from './modules/Project/Project.resolver'
 
 async function createServer() {
   const schema = await buildSchema({
-    resolvers: [TaskResolver, CommentResolver, UserResolver, RoleResolver],
+    resolvers: [TaskResolver, CommentResolver, UserResolver, RoleResolver, ProjectResolver],
   })
   // Create the GraphQL server
   const server = new ApolloServer(
