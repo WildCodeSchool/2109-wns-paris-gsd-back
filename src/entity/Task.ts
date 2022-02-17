@@ -17,6 +17,9 @@ import Project from './Project'
 import User from './User'
 import Asset from './Asset'
 
+import DATE_TIME_TYPES from '../constants/DATE_TIME_TYPE';
+
+
 export enum StatusName {
   NEW = 'NEW',
   IN_PROGRESS = 'IN PROGRESS',
@@ -46,11 +49,11 @@ class Task extends BaseEntity {
   description: string
 
   @Field()
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ type: DATE_TIME_TYPES, name: 'created_at' })
   starting_time: Date
 
   @Field()
-  @Column()
+  @Column({type: DATE_TIME_TYPES})
   ending_time: Date
 
   @Field(() => Number, { nullable: true })

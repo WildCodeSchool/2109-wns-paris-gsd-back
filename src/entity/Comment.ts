@@ -13,6 +13,9 @@ import { Field, ID, ObjectType } from 'type-graphql'
 import Task from './Task'
 import User from './User'
 
+import DATE_TIME_TYPES from '../constants/DATE_TIME_TYPE';
+
+console.log(process.env.JEST)
 @Entity()
 @ObjectType()
 class Comment extends BaseEntity {
@@ -25,7 +28,7 @@ class Comment extends BaseEntity {
   content: string
 
   @Field()
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ type: DATE_TIME_TYPES, name: 'created_at' })
   createdAt: Date
 
   // I have to add the foreign key Column by hand if i want to query with find({foreignKey: number})

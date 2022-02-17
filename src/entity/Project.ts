@@ -15,6 +15,16 @@ import { Field, ID, ObjectType } from 'type-graphql'
 import Task from './Task'
 import User from './User'
 
+import DATE_TIME_TYPES from '../constants/DATE_TIME_TYPE';
+
+export enum StatusName {
+  NEW = 'NEW',
+  IN_PROGRESS = 'IN PROGRESS',
+  PENDING_REVIEW = 'PENDING REVIEW',
+  DONE = 'DONE',
+  REJECTED = 'REJECTED',
+}
+
 @Entity()
 @ObjectType()
 class Project extends BaseEntity {
@@ -23,15 +33,15 @@ class Project extends BaseEntity {
   id: number
 
   @Field()
-  @Column({ type: 'text', default: 'To do' })
-  status: string
+  @Column({ type: 'text'})
+  name: string
 
   @Field()
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ type: DATE_TIME_TYPES, name: 'created_at' })
   starting_time: Date
 
   @Field()
-  @Column({ type: 'text' })
+  @Column({ type: DATE_TIME_TYPES })
   ending_time: Date
 
   @Field(() => [Task])
