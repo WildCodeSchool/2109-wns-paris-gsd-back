@@ -36,13 +36,13 @@ class Project extends BaseEntity {
   @Column({ type: 'text' })
   name: string
 
-  @Field()
+  @Field(()=> Date)
   @CreateDateColumn({ type: DATE_TIME_TYPES, name: 'created_at' })
-  starting_time: Date
+  starting_time: string
 
   @Field()
   @Column({ type: DATE_TIME_TYPES })
-  ending_time: Date
+  ending_time: string
 
   @Field(() => [Task])
   @OneToMany(() => Task, (task) => task.project)
