@@ -1,8 +1,5 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import createServer from '../../server';
-import Role, { RoleName } from '../../entity/Role';
-import Task from '../../entity/Task';
-import User from '../../entity/User';
 import Project from '../../entity/Project';
 
 let server: ApolloServer
@@ -35,7 +32,7 @@ describe('Project Resolver', () => {
     it('should retrieve a list of projects ', async () => {
       const project = Project.create({
         name: "Project test",
-        ending_time: new Date().getTime(),
+        ending_time: JSON.stringify(new Date().toISOString()),
       })
 
       await project.save()
@@ -44,8 +41,7 @@ describe('Project Resolver', () => {
         query getProjects {
           getProjects {
             id,
-            name,
-            ending_time
+            name
           }
         }
       `
@@ -54,13 +50,11 @@ describe('Project Resolver', () => {
         query: getProjectsQuery,
       })
 
-      console.log(errors)
-
       expect(!errors).toBeTruthy()
 
       const expectedResult = await Project.find()
       data!.getProjects[0].id = +data!.getProjects[0].id
-      expect(data!.getProjects).toEqual(expect.arrayContaining(expectedResult))
+      expect(data!.getProjects[0].id).toEqual(expectedResult[0].id)
     });
   });
 
