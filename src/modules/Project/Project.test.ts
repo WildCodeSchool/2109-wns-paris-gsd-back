@@ -32,7 +32,7 @@ describe('Project Resolver', () => {
     it('should retrieve a list of projects ', async () => {
       const project = Project.create({
         name: "Project test",
-        ending_time: JSON.stringify(new Date().toISOString()),
+        ending_time: new Date()
       })
 
       await project.save()
@@ -41,7 +41,9 @@ describe('Project Resolver', () => {
         query getProjects {
           getProjects {
             id,
-            name
+            name,
+            starting_time,
+            ending_time
           }
         }
       `
