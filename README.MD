@@ -49,4 +49,4 @@ First time `yarn` to install dependencies or update dependencies
 
 To launch the project in docker
 
-`docker-compose --build -f ./docker-compose.dev.yml up`
+`docker-compose -f ./docker-compose.dev.yml up --build`
