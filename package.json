@@ -8,8 +8,8 @@
     "start": "node ./dist/index.js",
     "start:dev": "ts-node-dev --respawn src/index.ts",
     "lint": "eslint . ",
-    "test": "NODE_ENV=development jest --watchAll",
-    "test:ci": "NODE_ENV=development jest"
+    "test": "NODE_ENV=development JEST=true jest --watchAll",
+    "test:ci": "NODE_ENV=development JEST=true jest"
   },
   "author": "Matildad de Souza, Camille Doizelet, Valentin de Guillebon, Yasmine Kharroubi, Eurico Da Custodia",
   "license": "ISC",
