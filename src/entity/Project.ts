@@ -12,8 +12,6 @@ import {
 
 import { Field, ID, ObjectType } from 'type-graphql'
 
-import { typeDefs as scalarTypeDefs } from 'graphql-scalars';
-
 import Task from './Task'
 import User from './User'
 
@@ -39,11 +37,11 @@ class Project extends BaseEntity {
   name: string
 
   @Field()
-  @CreateDateColumn({ type: DATE_TIME_TYPES, name: 'created_at' })
-  starting_time: typeDefs.DateTime
+  @CreateDateColumn({ name: 'created_at' })
+  starting_time: Date
 
   @Field()
-  @Column({ type: DATE_TIME_TYPES })
+  @Column()
   ending_time: Date
 
   @Field(() => [Task])
