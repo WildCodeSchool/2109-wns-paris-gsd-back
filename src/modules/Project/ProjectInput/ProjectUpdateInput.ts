@@ -9,7 +9,7 @@ export default class ProjectUpdateInput {
   name?: string
 
   @Field()
-  ending_time?: string
+  ending_time?: Date
 
   @Field()
   owner_id: number

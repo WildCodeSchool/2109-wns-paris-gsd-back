@@ -6,7 +6,7 @@ export default class ProjectInput {
   name: string
 
   @Field()
-  ending_time: string
+  ending_time: Date
 
   @Field()
   user_id: number
