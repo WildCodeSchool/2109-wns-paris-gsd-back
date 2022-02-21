@@ -6,3 +6,4 @@ postgres-data
 dist
 built
 .env
+coverage
