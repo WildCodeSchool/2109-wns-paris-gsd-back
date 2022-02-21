@@ -13,7 +13,6 @@ import {
 import { Field, ID, ObjectType, Root } from 'type-graphql'
 
 import ENUM_DATA_TYPE from '../constants/ENUM_DATA_TYPE'
-import DATE_TIME_TYPES from '../constants/DATE_TIME_TYPE';
 
 import Comment from './Comment'
 import Project from './Project'
@@ -51,11 +50,11 @@ class Task extends BaseEntity {
   description: string
 
   @Field()
-  @CreateDateColumn({ type: DATE_TIME_TYPES, name: 'created_at' })
+  @CreateDateColumn({name: 'created_at'})
   starting_time: Date
 
   @Field()
-  @Column({type: DATE_TIME_TYPES})
+  @Column()
   ending_time: Date
 
   @Field(() => Number, { nullable: true })
