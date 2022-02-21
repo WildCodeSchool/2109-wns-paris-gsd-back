@@ -1,11 +1,24 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import createServer from '../../server';
 import Project from '../../entity/Project';
+import User from '../../entity/User';
+import Role, { RoleName } from '../../entity/Role';
 
 let server: ApolloServer
+let user: User
 
 beforeAll(async () => {
   server = await createServer()
+  
+  user = User.create({
+    firstName: "toto",
+    lastName: "tata",
+    username: "tatadetoto",
+    email: "tataManager@toto.td",
+    password: "lannister",
+  })
+  await user.save();
+
 })
 
 describe('Project Resolver', () => {
@@ -47,11 +60,10 @@ describe('Project Resolver', () => {
           }
         }
       `
-
       const { data, errors } = await server.executeOperation({
         query: getProjectsQuery,
       })
-
+     
       expect(!errors).toBeTruthy()
 
       const expectedResult = await Project.find()
@@ -61,15 +73,79 @@ describe('Project Resolver', () => {
   });
 
   describe('Add a new project', () => {
+    const variables = {
+      data: {
+        name: "A new Project",
+        ending_time: new Date().toISOString(),
+      }
+    }
+
+    const addProjectMutation = gql`
+      mutation AddProject($data: ProjectInput!) {
+        addProject(data: $data) {
+          name
+          starting_time
+          ending_time
+          users {
+            id
+          }
+        }
+      }
+    `;
+
     it('should save a new project and retrieve data', async () => {
-      // TODO create a project
-      // * mock a mutation from front
-      // * expected retrieve data and save in db.
+      const roleManager = await Role.findOne({label: RoleName.MANAGER})
 
+      user.role = roleManager as Role;
 
+      await user.save()
+
+        const { data, errors } = await server.executeOperation({
+          query: addProjectMutation,
+          variables: {
+            data:{
+              ...variables.data,
+              user_id: user.id
+            }
+          },
+        })
+
+        expect(!errors).toBeTruthy()
+
+        const expectedResult = await Project.findOne({name: variables.data.name})
+        expect(data!.addProject.name).toEqual(expectedResult!.name)
+
+    });
+
+    it('should response an error because a user haven\'t not right access ', async () => {
+      const roleDev = await Role.findOne({label: RoleName.DEVELOPER})
+
+      user.role = roleDev as Role;
+
+      await user.save()
+
+      const { errors } = await server.executeOperation({
+        query: addProjectMutation,
+        variables: {
+          data:{
+            ...variables.data,
+            user_id: user.id
+          }
+        },
+      })
+
+      expect(errors).toBeTruthy()
     });
   });
 
+  // TODO update project
+
+
+  // TODO add new member to project
+
+
+
+  // TODO getprojectbyid
   // describe('Get a project with id params', () => {
   //   it('should retrieve a data of project by id', async () => {
 
