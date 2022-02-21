@@ -50,8 +50,6 @@ describe('login resolver', () => {
         lastName: expectedResult!.lastName,
         username: expectedResult!.username,
         email: expectedResult!.email
-
-
       }));
 
     })
