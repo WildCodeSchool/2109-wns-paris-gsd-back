@@ -8,10 +8,11 @@ import { RoleName } from "../../entity/Role";
 
 import ProjectInput from "./ProjectInput/ProjectInput";
 import ProjectUpdateInput from "./ProjectInput/ProjectUpdateInput";
+import AddMemberToProjectInput from "./ProjectInput/AddMemberToProjectInput";
 
 
 @ObjectType()
-class UpdateProjectResponse {
+class ProjectResponse {
   @Field(() => ID)
   id: number
 
@@ -56,7 +57,7 @@ export default class ProjectResolver {
       return new GraphQLError("The user can't create a project");
     }
 
-    const project = Project.create<Project>({ ...projectData, users: [user] });
+    const project = Project.create<Project>({ ...projectData,  users: [user] });
 
     await project.save();
 
@@ -64,10 +65,8 @@ export default class ProjectResolver {
 
   }
 
-  @Mutation(() => UpdateProjectResponse)
-  async updateProject(@Arg('data') { project_id, owner_id, ...projectData }: ProjectUpdateInput): Promise<UpdateProjectResponse | GraphQLError> {
-    // TODO create a project
-
+  @Mutation(() => ProjectResponse)
+  async updateProject(@Arg('data') { project_id, owner_id, ...projectData }: ProjectUpdateInput): Promise<ProjectResponse | GraphQLError> {
     // get the project
     const project = await Project.findOne({id:project_id, }, {relations: ['users', 'users.role']});
     if (!project) {
@@ -88,6 +87,41 @@ export default class ProjectResolver {
       id: project.id,
       message: "Updated successfully"
     };
+
+  }
+
+  @Mutation(() => ProjectResponse)
+  async addMemberToProject(@Arg('data') { projectId, managerId, memberId}: AddMemberToProjectInput) : Promise<ProjectResponse | GraphQLError> {
+    try {
+      const project = await Project.findOneOrFail({id: projectId}, { relations: ['users', 'users.role']})
+
+      const isManager = !!project.users.find(manager => manager.id === managerId && manager.role.label === RoleName.MANAGER)
+
+      if(!isManager) {
+        return new GraphQLError('You don\'t have permissions to access this one, there is a testicle')
+      }
+
+      const member = await User.findOneOrFail({id: memberId}, {relations: ['role']})
+
+      const isDeveloper = member.role.label === RoleName.DEVELOPER
+
+      if(!isDeveloper) {
+        return new GraphQLError('The user isn\'t the developer you can\'t added this one, there is a testicle')
+      }
+
+      project.users.push(member)
+
+      await project.save()
+      
+      return {
+        id: projectId,
+        message: "Member added successfully"
+      }
+    } catch (error) {
+      return new GraphQLError('Y a une couille dans l\'addMemberToProject')
+    }
+
+
 
   }
 

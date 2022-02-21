@@ -4,6 +4,7 @@ import { Arg, Query, Resolver, Mutation } from 'type-graphql'
 import User from '../../entity/User'
 import Role, { RoleName}  from '../../entity/Role';
 import UserInput from './UserInput/UserInput';
+import UpdateRoleInput from './UserInput/UpdateRoleInput';
 
 @Resolver(User)
 export default class UserResolver {
@@ -23,19 +24,41 @@ export default class UserResolver {
   }
 
   @Mutation(() => User)
-  async addUser(@Arg("data") data: UserInput): Promise<User | GraphQLError> {
+    async addUser(@Arg("data") data: UserInput): Promise<User | GraphQLError> {
 
-  try {
-    const defaultRole: Role | undefined = await Role.findOne({label : RoleName.USER })
+    try {
+      const defaultRole: Role | undefined = await Role.findOne({label : RoleName.USER })
 
-    const user = User.create({...data, role: defaultRole});
-  
-    await user.save();
-    return user;
+      const user = User.create({...data, role: defaultRole});
     
-  } catch (error)  {
-    return new GraphQLError("y a une couille de Signup")
+      await user.save();
+      return user;
+      
+    } catch (error)  {
+      return new GraphQLError("y a une couille de Signup")
+    }
   }
-}
+
+  @Mutation(() => User)
+    async updateUserRole(@Arg("data") {userId, roleId}: UpdateRoleInput): Promise<User | GraphQLError> {
+
+    try {
+      const user = await User.findOne({id: userId}, { relations:['role']})
+
+      if(!user) {
+        return new GraphQLError('no user found')
+      }
+
+      const newRole = await Role.findOne({id: roleId}, {relations: ['users']})
+
+      user.role = newRole as Role;
+
+      await user.save();
+      return user;
+      
+    } catch (error)  {
+      return new GraphQLError("y a une couille dans l'update user Role")
+    }
+  }
 }
 
