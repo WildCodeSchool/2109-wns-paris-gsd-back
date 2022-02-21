@@ -15,7 +15,6 @@ import { Field, ID, ObjectType } from 'type-graphql'
 import Task from './Task'
 import User from './User'
 
-import DATE_TIME_TYPES from '../constants/DATE_TIME_TYPE';
 
 export enum StatusName {
   NEW = 'NEW',

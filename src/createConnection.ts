@@ -5,8 +5,6 @@ dotenv.config({
   path: process.env.NODE_ENV === 'development' ? 'env-dev.env' : 'env-prod.env'
 })
 
-console.log(process.env.NODE_ENV);
-
 export async function connectPostgres() {
   await createConnection({
     type: 'postgres',
