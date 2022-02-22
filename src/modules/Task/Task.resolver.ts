@@ -11,6 +11,7 @@ import AllTaskInput from './TaskInput/AllTaskInput';
 import AllTaskByProjectIdInput from './TaskInput/AllTaskByProjectIdInput';
 import TaskIdInput from './TaskInput/TaskIdInput';
 import Project from '../../entity/Project';
+import { In } from 'typeorm';
 
 @ObjectType()
 class UpdateTaskResponse {
@@ -42,21 +43,31 @@ export default class TaskResolver {
     try {
 
       const tasks = await Task.find({
-        where: {
-          project: {
-            users: {
-              id: userId
-            }
+        join: {
+          alias: "project",
+          innerJoinAndSelect: {
+            project: "project.users"
           }
         },
-        relations: ["project", "project.users", "taskCreator"]
+        // where: {
+        //   "project": {
+        //     users: {
+        //       where: {
+        //         id: userId
+        //       }
+        //     }
+        //   }
+        // },
+        // relations: ["project", "project.users", "taskCreator"],
       });
+
+      console.log(tasks)
 
       // will get all tasks from all project the user is a member from
       // return tasks.filter((task => task.project.users.find(( user ) => +user.id === +userId )));
       return tasks;
     } catch (error) {
-
+      console.log(error);
       return new GraphQLError("y a une couille dans getAllTasksByUserProject");
     }
 
