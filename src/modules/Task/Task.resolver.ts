@@ -41,37 +41,17 @@ export default class TaskResolver {
   async getAllTasksByUserProject(@Arg('data') { userId }: AllTaskInput): Promise<Task[] | GraphQLError> {
 
     try {
-
-      const tasks = await Task.find({
-        join: {
-          alias: "project",
-          innerJoinAndSelect: {
-            project: "project.users"
-          }
-        },
-        // where: {
-        //   "project": {
-        //     users: {
-        //       where: {
-        //         id: userId
-        //       }
-        //     }
-        //   }
-        // },
-        // relations: ["project", "project.users", "taskCreator"],
-      });
-
-      console.log(tasks)
+      const tasks = await Task.find({relations: ["project","project.users", "taskCreator"]})
 
       // will get all tasks from all project the user is a member from
-      // return tasks.filter((task => task.project.users.find(( user ) => +user.id === +userId )));
-      return tasks;
+      return tasks.filter((task => task.project.users.find(( user ) => +user.id === +userId )));
+      // return tasks;
     } catch (error) {
-      console.log(error);
       return new GraphQLError("y a une couille dans getAllTasksByUserProject");
     }
 
   }
+
 
   @Query(() => [Task])
   async getTasksByProjectId(@Arg('data') { projectId }: AllTaskByProjectIdInput): Promise<Task[] | GraphQLError> {
@@ -114,33 +94,20 @@ export default class TaskResolver {
 
       const project = await Project.findOneOrFail({ id: projectId }, { relations: ['users', 'users.role'] });
 
-      // const isMemberAndManager = !!project?.users.find(currentUser => (user.id === currentUser.id && user.role.label === RoleName.MANAGER))
-      const isMemberAndManager = await User.findOne({
-        where: {
-          id: managerId,
-          role: {
-            label: RoleName.MANAGER
-          },
-          projects: {
-            id: projectId,
-            users: {
-              id: managerId
-            }
-          }
-        },
-        relations: ["role", "projects", "projects.users"]
-      });
+      const isMemberAndManager = !!project?.users.find(currentUser => (managerId === currentUser.id && currentUser.role.label === RoleName.MANAGER))
+      
 
       if (!isMemberAndManager) {
         return new GraphQLError("user is not authorized to add a task, y a une couille")
       }
-
       const task = Task.create({ ...taskData, taskCreator: user, project });
+
       await task.save()
 
       return task;
 
     } catch (error) {
+      console.log(error)
       return new GraphQLError('y a une couille dans l\'addTask')
     }
   }
