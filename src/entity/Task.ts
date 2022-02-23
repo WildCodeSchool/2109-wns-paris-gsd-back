@@ -85,7 +85,7 @@ class Task extends BaseEntity {
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[]
 
-  @Field(() => Project)
+  @Field(() => Project, {nullable: true})
   @ManyToOne(() => Project, (project) => project.tasks)
   @JoinColumn({ name: 'project_id', referencedColumnName: 'id'})
   project: Project

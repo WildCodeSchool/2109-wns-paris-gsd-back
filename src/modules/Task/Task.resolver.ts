@@ -32,7 +32,7 @@ export default class TaskResolver {
   async getTasks(): Promise<Task[]> {
     // that's how you can Load task with their comment with left join (no n + 1 issue).
     // performance issue: even when frontend doesn't need to load the comments, we're doing a left join to fetch them anyway (Use a fieldResolver)
-    const tasks = await Task.find({ relations: ['comments', "comments.author", "taskCreator", 'taskCreator.role'] })
+    const tasks = await Task.find({ relations: ['comments', "comments.author", "taskCreator", 'taskCreator.role', 'project'] })
     return tasks
   }
 
