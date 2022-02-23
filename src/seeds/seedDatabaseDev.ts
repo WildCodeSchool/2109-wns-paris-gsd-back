@@ -7,9 +7,9 @@ import "reflect-metadata";
 // import { createConnection, getConnectionOptions } from "typeorm";
 import User from '../entity/User'
 import Role, { RoleName } from "../entity/Role";
-import Task, { StatusName } from "../entity/Task";
+import Task from "../entity/Task";
 import Project from "../entity/Project";
-import Comment from "../entity/Comment";
+// import Comment from "../entity/Comment";
 
 config({ path: `.env.${process.env.NODE_ENV}` });
 
@@ -137,7 +137,7 @@ const seedingDB = async () => {
         p.name = project.title;
         p.ending_time = new Date();
         p.users = project !== projectName[2] ? users : [];
-        const createdProject = await connection.manager.save(p);
+        await connection.manager.save(p);
         console.log(`Saved a new project with named: ${p.name}`);
       }
       const projects = await connection.manager.find(Project, { relations: ["users"] });
@@ -146,7 +146,6 @@ const seedingDB = async () => {
       // CREATE TASKS
       console.log("CREATE TASKS");
       for (const project of projects) {
-        let i = 1;
         for (let index = 0; index < 5; index += 1) {
           const t = new Task();
           t.title = `task title ${index}`;
