@@ -37,44 +37,43 @@ export default class TaskResolver {
   }
 
   @Query(() => [Task])
-  async getAllTasksByUserProject(@Arg('data') {userId}: AllTaskInput): Promise<Task[] | GraphQLError> {
-    
+  async getAllTasksByUserProject(@Arg('data') { userId }: AllTaskInput): Promise<Task[] | GraphQLError> {
+
     try {
-      
-      const tasks = await Task.find({relations: ["project", "project.users", "taskCreator"] });
-      
+      const tasks = await Task.find({ relations: ["project", "project.users", "taskCreator"] })
+
       // will get all tasks from all project the user is a member from
-      return tasks.filter((task => task.project.users.find(( user ) => +user.id === +userId )));
-
+      return tasks.filter((task => task.project.users.find((user) => +user.id === +userId)));
+      // return tasks;
     } catch (error) {
-
       return new GraphQLError("y a une couille dans getAllTasksByUserProject");
     }
-    
+
   }
 
+
   @Query(() => [Task])
-  async getTasksByProjectId(@Arg('data') {projectId}: AllTaskByProjectIdInput): Promise<Task[] | GraphQLError> {
+  async getTasksByProjectId(@Arg('data') { projectId }: AllTaskByProjectIdInput): Promise<Task[] | GraphQLError> {
     try {
-      const tasks = await Task.find({relations: ["project"]})
-      
+      const tasks = await Task.find({ relations: ["project"] })
+
       return tasks.filter((task) => task.project.id === projectId)
 
     } catch (error) {
-      
+
       return new GraphQLError(" y a une couille dans getTasksByProjectId")
     }
   }
 
   @Query(() => [Task])
-  async getTaskById(@Arg('data') {taskId}: TaskIdInput): Promise<Task | GraphQLError> {
+  async getTaskById(@Arg('data') { taskId }: TaskIdInput): Promise<Task | GraphQLError> {
     try {
-      const task = await Task.findOneOrFail({id: taskId}, {relations: ["project", "comments", "comments.author", "comments.author.role", "taskCreator", "taskCreator.role"]})
-     
+      const task = await Task.findOneOrFail({ id: taskId }, { relations: ["project", "comments", "comments.author", "comments.author.role", "taskCreator", "taskCreator.role"] })
+
       return task;
 
     } catch (error) {
-      
+
       return new GraphQLError(" y a une couille dans getTaskById")
     }
   }
@@ -84,24 +83,28 @@ export default class TaskResolver {
   */
 
   @Mutation(() => Task)
-  async addTask(@Arg('data') {creatorId, projectId, ...taskData }: TaskInput): Promise<Task | GraphQLError> {
-    
-    try {
-      const user = await User.findOneOrFail({id: creatorId});
+  async addTask(
+    @Arg('managerId') managerId: number,
+    @Arg('data') { creatorId, projectId, ...taskData }: TaskInput
+  ): Promise<Task | GraphQLError> {
 
-      const project = await Project.findOneOrFail({id:projectId}, {relations: ['users']});
-      
-      const isMember = !!project?.users.find(currentUser => user.id === currentUser.id)
-      
-      if (!isMember) {
+    try {
+      const user = await User.findOneOrFail({ id: creatorId });
+
+      const project = await Project.findOneOrFail({ id: projectId }, { relations: ['users', 'users.role'] });
+
+      const isMemberAndManager = !!project?.users.find(currentUser => (managerId === currentUser.id && currentUser.role.label === RoleName.MANAGER))
+
+
+      if (!isMemberAndManager) {
         return new GraphQLError("user is not authorized to add a task, y a une couille")
       }
-
       const task = Task.create({ ...taskData, taskCreator: user, project });
+
       await task.save()
-      
+
       return task;
-      
+
     } catch (error) {
       return new GraphQLError('y a une couille dans l\'addTask')
     }
@@ -113,23 +116,23 @@ export default class TaskResolver {
     @Arg('data') data: UpdateDeleteTaskInput
   ): Promise<UpdateTaskResponse | GraphQLError> {
     try {
-      const taskToUpdate = await Task.findOneOrFail({ id: data.id }, {relations: ["project", "project.users"]})
+      const taskToUpdate = await Task.findOneOrFail({ id: data.id }, { relations: ["project", "project.users"] })
 
       // making sure that the user is member of the project before updating
-      const user = await User.findOneOrFail({id: userId});
+      const user = await User.findOneOrFail({ id: userId });
       const isMember = !!taskToUpdate.project.users.find(currentUser => user.id === currentUser.id)
-      
+
       if (!isMember) {
         return new GraphQLError("user is not authorized to update a task, y a une couille")
       }
 
-      await Task.update({id: taskToUpdate.id}, {...data});
+      await Task.update({ id: taskToUpdate.id }, { ...data });
 
       return {
         id: taskToUpdate.id,
         message: "Updated successfully"
       }
-  
+
     } catch (error) {
       return new GraphQLError('update Error')
     }
@@ -139,18 +142,18 @@ export default class TaskResolver {
   async changeAssignee(
     @Arg('userId') userId: number,
     @Arg('data') data: ChangeAssigneeInput
-  ) : Promise<Task | GraphQLError> {
+  ): Promise<Task | GraphQLError> {
     try {
-      const task = await Task.findOneOrFail({id: data.id}, {relations: ["project", "project.users"]});
+      const task = await Task.findOneOrFail({ id: data.id }, { relations: ["project", "project.users"] });
       // make sure that the guy trying to change assignee
 
-      const isUserMember = !!task.project.users.find((user) => user.id === userId);
+      const isUserMemberAndManager = !!task.project.users.find((user) => user.id === userId && user.role.label === RoleName.MANAGER);
 
-      if (!isUserMember) {
+      if (!isUserMemberAndManager) {
         return new GraphQLError("User can't change assignee, y a une couille");
       }
 
-      const newAssignee  = await User.findOneOrFail({id: data.creator_id}, {relations : ["role"]});
+      const newAssignee = await User.findOneOrFail({ id: data.creator_id }, { relations: ["role"] });
 
       const isAssigneeMember = !!task.project.users.find((user) => user.id === data.creator_id);
 
@@ -174,11 +177,11 @@ export default class TaskResolver {
     @Arg('userId') userId: number,
     @Arg('data') data: UpdateDeleteTaskInput
   ): Promise<Task | GraphQLError> {
-    try { 
-      const taskTodelete = await Task.findOneOrFail({ id: data.id }, {relations: ["project", "project.users", 'project.users.role']})
+    try {
+      const taskTodelete = await Task.findOneOrFail({ id: data.id }, { relations: ["project", "project.users", 'project.users.role'] })
 
       const manager = taskTodelete.project.users.find(user => user.role.label === RoleName.MANAGER)
-      
+
       if (!manager || manager.id !== userId) {
         return new GraphQLError("can't delete the task, you are not the manager")
       }
