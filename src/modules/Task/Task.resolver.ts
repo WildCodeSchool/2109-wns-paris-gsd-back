@@ -11,7 +11,6 @@ import AllTaskInput from './TaskInput/AllTaskInput';
 import AllTaskByProjectIdInput from './TaskInput/AllTaskByProjectIdInput';
 import TaskIdInput from './TaskInput/TaskIdInput';
 import Project from '../../entity/Project';
-import { In } from 'typeorm';
 
 @ObjectType()
 class UpdateTaskResponse {
@@ -41,10 +40,10 @@ export default class TaskResolver {
   async getAllTasksByUserProject(@Arg('data') { userId }: AllTaskInput): Promise<Task[] | GraphQLError> {
 
     try {
-      const tasks = await Task.find({relations: ["project","project.users", "taskCreator"]})
+      const tasks = await Task.find({ relations: ["project", "project.users", "taskCreator"] })
 
       // will get all tasks from all project the user is a member from
-      return tasks.filter((task => task.project.users.find(( user ) => +user.id === +userId )));
+      return tasks.filter((task => task.project.users.find((user) => +user.id === +userId)));
       // return tasks;
     } catch (error) {
       return new GraphQLError("y a une couille dans getAllTasksByUserProject");
@@ -95,7 +94,7 @@ export default class TaskResolver {
       const project = await Project.findOneOrFail({ id: projectId }, { relations: ['users', 'users.role'] });
 
       const isMemberAndManager = !!project?.users.find(currentUser => (managerId === currentUser.id && currentUser.role.label === RoleName.MANAGER))
-      
+
 
       if (!isMemberAndManager) {
         return new GraphQLError("user is not authorized to add a task, y a une couille")
@@ -107,7 +106,6 @@ export default class TaskResolver {
       return task;
 
     } catch (error) {
-      console.log(error)
       return new GraphQLError('y a une couille dans l\'addTask')
     }
   }

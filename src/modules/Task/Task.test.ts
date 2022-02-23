@@ -5,12 +5,11 @@ import User from '../../entity/User'
 import Role, { RoleName } from '../../entity/Role'
 import Project, { StatusName } from '../../entity/Project'
 import Task from '../../entity/Task'
-import ProjectInput from 'modules/Project/ProjectInput/ProjectInput'
 
 let server: ApolloServer
 let project1: Project[];
 // let project2: Project;
-let task1 : Task;
+let task1: Task;
 
 beforeAll(async () => {
   server = await createServer()
@@ -27,7 +26,7 @@ describe('Task resolver', () => {
   });
 
   describe('Get all tasks by user project', () => {
-    
+
     beforeAll(async () => {
       const managerRole = await Role.findOne({ label: RoleName.MANAGER });
 
@@ -39,107 +38,105 @@ describe('Task resolver', () => {
         password: "j.lennon45",
         role: managerRole
       });
-    
-    await manager.save();
 
-    const developerRole = await Role.findOne({ label: RoleName.DEVELOPER });
-  
-    const developer = User.create({
-      firstName: "Ricodeveloper",
-      lastName: "La",
-      username: "ricodeveloper.dev",
-      email: "rico.developer@wild.com",
-      password: "j.lennon45",
-      role: developerRole
+      await manager.save();
+
+      const developerRole = await Role.findOne({ label: RoleName.DEVELOPER });
+
+      const developer = User.create({
+        firstName: "Ricodeveloper",
+        lastName: "La",
+        username: "ricodeveloper.dev",
+        email: "rico.developer@wild.com",
+        password: "j.lennon45",
+        role: developerRole
+      });
+
+      await developer.save();
+
+      const projects = [
+        {
+          name: "projet1",
+          ending_time: new Date(),
+          users: [developer, manager]
+        },
+        {
+          name: "projet2",
+          ending_time: new Date(),
+          users: [manager]
+        },
+      ];
+
+
+      project1 = Project.create(projects);
+      await project1[0].save();
+      await project1[1].save()
+      // console.log(project1)
+
+      // const  projet2 = Project.create({ ...projects[1] });
+      // await projet2.save();
+
+      const tasks = [
+        {
+          title: "tache1",
+          description: "tache1 desc",
+          ending_time: new Date(),
+          advancement: 18,
+          status: StatusName.NEW,
+          // taskCreator: developer
+        },
+        // {
+        //   title: "tache2",
+        //   description: "tache2 desc",
+        //   ending_time: new Date(),
+        //   advancement: 18,
+        //   project: projet1,
+        //   taskCreator: developer
+
+        // },
+        // {
+        //   title: "tache3",
+        //   description: "tache3 desc",
+        //   ending_time: new Date(),
+        //   advancement: 18,
+        //   project: projet1,
+        //   taskCreator: developer
+
+        // },
+        // {
+        //   title: "tache4",
+        //   description: "tache4 desc",
+        //   ending_time: new Date(),
+        //   advancement: 36,
+        //   project: projet2,
+        //   taskCreator: developer
+
+        // },
+        // {
+        //   title: "tache5",
+        //   description: "tache5 desc",
+        //   ending_time: new Date(),
+        //   advancement: 75,
+        //   project: projet2,
+        //   taskCreator: developer
+
+        // },
+      ];
+
+      task1 = Task.create({ ...tasks[0] })
+      await task1.save();
+
+      await Project.update({ id: project1[0].id }, { tasks: [task1] })
+
+      // await Task.update({id: task1.id}, {...task1, project: project1[0]})
     });
-    
-    await developer.save();
-
-    const projects = [
-      {
-        name: "projet1",
-        ending_time: new Date(),
-        users:[developer, manager]
-      },
-      {
-        name: "projet2",
-        ending_time: new Date(),
-        users: [manager]
-      },
-    ];
-
-
-    project1 = Project.create(projects);
-    await project1[0].save();
-    await project1[1].save()
-    // console.log(project1)
-
-    //const  projet2 = Project.create({ ...projects[1] });
-    // await projet2.save();
-    
-    const tasks = [
-      {
-        title: "tache1",
-        description: "tache1 desc",
-        ending_time: new Date(),
-        advancement: 18,
-        status: StatusName.NEW,
-        // taskCreator: developer
-      },
-      // {
-      //   title: "tache2",
-      //   description: "tache2 desc",
-      //   ending_time: new Date(),
-      //   advancement: 18,
-      //   project: projet1,
-      //   taskCreator: developer
-
-      // },
-      // {
-      //   title: "tache3",
-      //   description: "tache3 desc",
-      //   ending_time: new Date(),
-      //   advancement: 18,
-      //   project: projet1,
-      //   taskCreator: developer
-
-      // },
-      // {
-      //   title: "tache4",
-      //   description: "tache4 desc",
-      //   ending_time: new Date(),
-      //   advancement: 36,
-      //   project: projet2,
-      //   taskCreator: developer
-
-      // },
-      // {
-      //   title: "tache5",
-      //   description: "tache5 desc",
-      //   ending_time: new Date(),
-      //   advancement: 75,
-      //   project: projet2,
-      //   taskCreator: developer
-
-      // },
-  ];
-
-    task1 = Task.create({...tasks[0]})
-    await task1.save();
-
-    await Project.update({id: project1[0].id}, {tasks: [task1]})
-
-    // await Task.update({id: task1.id}, {...task1, project: project1[0]})
-    
-    console.log(task1)
-  });
 
     it('should retrieve an array of tasks where user has member', async () => {
       // todo  
       // [] un user developer
       // [] 2 projets => un projet dont le developer est membre
       // [] liste de taches liees aux deux projets
-     
+
       // const developerRole = await Role.findOne({ label: RoleName.DEVELOPER });
 
       // const developer = User.create({
@@ -150,9 +147,9 @@ describe('Task resolver', () => {
       //   password: "j.lennon45",
       //   role: developerRole
       // });
-      
+
       // await developer.save();
-    
+
 
       // const projects = [
       //   {
@@ -169,11 +166,11 @@ describe('Task resolver', () => {
       // const projet1 = Project.create({ ...projects[0], users: [developer] });
       // await projet1.save();
       // console.log(projet1)
-      //const  projet2 = Project.create({ ...projects[1] });
+      // const  projet2 = Project.create({ ...projects[1] });
       // await projet2.save();
 
 
-      
+
       // const tasks = [
       //   {
       //     title: "tache1",
@@ -223,27 +220,27 @@ describe('Task resolver', () => {
 
       // const tasks = Task.create(taskList)
       // const project_ = await Project.findOne({id: 1})
-     
+
       //   const task1 = Task.create({...tasks[0]})
       //   await task1.save();
 
       //   await Task.update({id: task1.id}, {...task1, project: project_})
-        
+
       //   console.log(task1)
 
-        // const task2 = Task.create(tasks[1])
-        // await task2.save();
-        
-        // const task3 = Task.create(tasks[2]);
-        // await task3.save();
-        
-        // const task4 = Task.create(tasks[3]);
-        // await task4.save();
+      // const task2 = Task.create(tasks[1])
+      // await task2.save();
 
-        // const task5 = Task.create(tasks[4])
-        // await task5.save();
+      // const task3 = Task.create(tasks[2]);
+      // await task3.save();
 
-     
+      // const task4 = Task.create(tasks[3]);
+      // await task4.save();
+
+      // const task5 = Task.create(tasks[4])
+      // await task5.save();
+
+
 
       // const getAllTasksByUserProjectMutation = gql`
       // query getAllTasksByUserProject( $data: AllTaskInput!) {
