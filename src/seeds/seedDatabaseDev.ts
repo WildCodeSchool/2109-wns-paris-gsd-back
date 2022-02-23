@@ -7,7 +7,7 @@ import "reflect-metadata";
 // import { createConnection, getConnectionOptions } from "typeorm";
 import User from '../entity/User'
 import Role, { RoleName } from "../entity/Role";
-import Task from "../entity/Task";
+import Task, { StatusName } from "../entity/Task";
 import Project from "../entity/Project";
 // import Comment from "../entity/Comment";
 
@@ -146,22 +146,27 @@ const seedingDB = async () => {
       // CREATE TASKS
       console.log("CREATE TASKS");
       for (const project of projects) {
-        for (let index = 0; index < 5; index += 1) {
-          const t = new Task();
-          t.title = `task title ${index}`;
-          t.description = `task description ${index}`;
-          t.project = project;
-          if (project.users.length)
-            t.taskCreator = project.users[Math.floor(Math.random() * project.users.length)];
-          t.ending_time = new Date();
-          t.advancement = Math.floor(Math.random() * 100)
+        if (project.users.length) {
+          for (let index = 0; index < 5; index += 1) {
+            const t = new Task();
+            t.title = `task title ${index}`;
+            t.description = `task description ${index}`;
+            t.project = project;
+            if (index === 0){
+              t.status = StatusName.DONE;
+            }
+            if (project.users.length)
+              t.taskCreator = project.users[Math.floor(Math.random() * project.users.length)];
+            t.ending_time = new Date();
+            t.advancement = Math.floor(Math.random() * 100)
 
-          await connection.manager.save(t);
+            await connection.manager.save(t);
 
-          console.log(
-            `Saved a new Task: ${t.title}. On project id: ${project.id}`
-          );
-        }
+            console.log(
+              `Saved a new Task: ${t.title}. On project id: ${project.id}`
+            );
+          }
+      }
       }
       console.log(await connection.manager.find(Task, { relations: ["project", "project.users", "taskCreator"] }))
       console.log("database seeded. 🚀");

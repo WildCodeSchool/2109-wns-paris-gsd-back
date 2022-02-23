@@ -19,8 +19,6 @@ import Project from './Project'
 import User from './User'
 import Asset from './Asset'
 
-
-
 export enum StatusName {
   NEW = 'NEW',
   IN_PROGRESS = 'IN PROGRESS',
@@ -50,10 +48,10 @@ class Task extends BaseEntity {
   description: string
 
   @Field()
-  @CreateDateColumn({name: 'created_at'})
+  @CreateDateColumn({ name: 'created_at' })
   starting_time: Date
 
-  @Field()
+  @Field(() => String)
   @Column()
   ending_time: Date
 
@@ -76,7 +74,7 @@ class Task extends BaseEntity {
   @Field()
   @Column({
     type: ENUM_DATA_TYPE,
-    enum: ENUM_DATA_TYPE === 'enum' ? StatusName : undefined, 
+    enum: ENUM_DATA_TYPE === 'enum' ? StatusName : undefined,
     default: StatusName.NEW,
   })
   status: StatusName
@@ -85,9 +83,9 @@ class Task extends BaseEntity {
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[]
 
-  @Field(() => Project, {nullable: true})
+  @Field(() => Project, { nullable: true })
   @ManyToOne(() => Project, (project) => project.tasks)
-  @JoinColumn({ name: 'project_id', referencedColumnName: 'id'})
+  @JoinColumn({ name: 'project_id', referencedColumnName: 'id' })
   project: Project
 
   //! maybe change name of taskCreator by assignee / smthg else
