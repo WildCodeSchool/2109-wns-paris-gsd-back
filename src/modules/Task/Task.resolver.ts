@@ -80,7 +80,7 @@ export default class TaskResolver {
             id: projectId
           }
         },
-        relations: ['project']
+        relations: ['project', 'taskCreator']
       })
 
       return tasks
