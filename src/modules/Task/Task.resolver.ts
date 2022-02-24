@@ -74,9 +74,16 @@ export default class TaskResolver {
     @Arg('data') { projectId }: AllTaskByProjectIdInput
   ): Promise<Task[] | GraphQLError> {
     try {
-      const tasks = await Task.find({ relations: ['project'] })
+      const tasks = await Task.find({
+        where: {
+          project: {
+            id: projectId
+          }
+        },
+        relations: ['project']
+      })
 
-      return tasks.filter((task) => task.project.id === projectId)
+      return tasks
     } catch (error) {
       return new GraphQLError(' y a une couille dans getTasksByProjectId')
     }
