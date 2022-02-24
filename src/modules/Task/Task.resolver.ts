@@ -89,7 +89,7 @@ export default class TaskResolver {
     }
   }
 
-  @Query(() => [Task])
+  @Query(() => Task)
   async getTaskById(
     @Arg('data') { taskId }: TaskIdInput
   ): Promise<Task | GraphQLError> {
