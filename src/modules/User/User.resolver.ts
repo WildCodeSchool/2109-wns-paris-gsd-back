@@ -1,13 +1,49 @@
 // eslint-disable-next-line max-classes-per-file
 import { GraphQLError } from 'graphql'
-import { Arg, Query, Resolver, Mutation } from 'type-graphql'
+import bcrypt from 'bcrypt'
+import { sign, Secret } from 'jsonwebtoken';
+import { Arg, Query, Resolver, Mutation, ObjectType, Field } from 'type-graphql'
 import User from '../../entity/User'
 import Role, { RoleName } from '../../entity/Role';
 import UserInput from './UserInput/UserInput';
 import UpdateRoleInput from './UserInput/UpdateRoleInput';
+import LoginInput from './LoginInput/LoginInput';
+
+@ObjectType()
+class LoginAnswer {
+  @Field()
+  token: string
+
+}
 
 @Resolver(User)
 export default class UserResolver {
+  @Query(() => LoginAnswer)
+
+  // Handle the user login
+  async loginUser(
+    @Arg('data') { username, password }: LoginInput
+  ): Promise<LoginAnswer | GraphQLError> {
+    // we search the user who wants to log among the list of users
+    const user = await User.findOne({ username })
+    // if user
+    if (!user) {
+      return new GraphQLError('Something went wrong')
+    }
+    const validPassword = await bcrypt.compare(password, user.password)
+
+    if (!validPassword) {
+      return new GraphQLError('Wrong password')
+    }
+
+    const token = sign({ id: user.id, username: user.username, role: user.role }, process.env.JSON_TOKEN_KEY as Secret, {
+      expiresIn: '24h',
+    })
+
+    return { token }
+  }
+
+
   @Query(() => [User])
   async getUsers(): Promise<User[] | GraphQLError> {
 
