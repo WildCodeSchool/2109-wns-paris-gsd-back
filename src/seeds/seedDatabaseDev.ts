@@ -2,6 +2,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
 import { config } from "dotenv";
+import bcrypt from 'bcrypt'
 import { connectPostgres } from "../createConnection";
 import "reflect-metadata";
 // import { createConnection, getConnectionOptions } from "typeorm";
@@ -14,15 +15,6 @@ import Project from "../entity/Project";
 config({ path: `.env.${process.env.NODE_ENV}` });
 
 console.log(`seedDatabase starting in ${process.env.NODE_ENV} environment`);
-
-// //Create test DB
-// const Database = require("better-sqlite3");
-
-// function openDb(filename: string) {
-//   new Database(`${filename}.db`, { verbose: console.log });
-// }
-
-// openDb("test");
 
 const usersName = [
   {
@@ -116,7 +108,7 @@ const seedingDB = async () => {
         u.lastName = user.lastName;
         u.username = `${user.firstName}${user.lastName}`;
         u.email = user.email;
-        u.password = "azerty123";
+        u.password = bcrypt.hashSync("azerty123", 10);
         const userInstance = await connection.manager.save(u);
 
         if (u.firstName === 'Valentaing') {
@@ -152,7 +144,7 @@ const seedingDB = async () => {
             t.title = `task title ${index}`;
             t.description = `task description ${index}`;
             t.project = project;
-            if (index === 0){
+            if (index === 0) {
               t.status = StatusName.DONE;
             }
             if (project.users.length)
@@ -166,7 +158,7 @@ const seedingDB = async () => {
               `Saved a new Task: ${t.title}. On project id: ${project.id}`
             );
           }
-      }
+        }
       }
       console.log(await connection.manager.find(Task, { relations: ["project", "project.users", "taskCreator"] }))
       console.log("database seeded. 🚀");
