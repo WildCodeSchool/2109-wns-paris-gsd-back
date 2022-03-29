@@ -1,21 +1,18 @@
 import { ApolloError } from "apollo-server-express";
-import { JwtPayload } from "jsonwebtoken";
-import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
 
-import Role from "../../entity/Role";
+import Role, { RoleName } from "../../entity/Role";
 import RoleInput from "./RoleInput/RoleInput";
 
 @Resolver(Role)
 export default class RoleResolver {
+
+  @Authorized([RoleName.ADMIN, RoleName.MANAGER])
   @Query(() => [Role])
-  async getRoles(@Ctx() ctx: JwtPayload): Promise<Role[] | ApolloError> {
-    if (ctx && ctx.payload) {
-      const roles = await Role.find();
-      return roles;
-    }
+  async getRoles(): Promise<Role[] | ApolloError> {
 
-    return new ApolloError("Not authorized")
-
+    const roles = await Role.find();
+    return roles;
 
   }
 

@@ -25,7 +25,9 @@ export default class UserResolver {
     @Arg('data') { username, password }: LoginInput
   ): Promise<LoginAnswer | GraphQLError> {
     // we search the user who wants to log among the list of users
-    const user = await User.findOne({ username })
+    const user = await User.findOne({ username }, {
+      relations: ["role"]
+    })
     // if user
     if (!user) {
       return new GraphQLError('Something went wrong')
@@ -36,7 +38,7 @@ export default class UserResolver {
       return new GraphQLError('Wrong password')
     }
 
-    const token = sign({ id: user.id, username: user.username, role: user.role }, process.env.JSON_TOKEN_KEY as Secret, {
+    const token = sign({ id: user.id, username: user.username, role: user.role.label }, process.env.JSON_TOKEN_KEY as Secret, {
       expiresIn: '24h',
     })
 
