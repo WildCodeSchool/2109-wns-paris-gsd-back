@@ -2,7 +2,7 @@
 import { GraphQLError } from 'graphql'
 import bcrypt from 'bcrypt'
 import { sign, Secret } from 'jsonwebtoken';
-import { Arg, Query, Resolver, Mutation, ObjectType, Field } from 'type-graphql'
+import { Arg, Query, Resolver, Authorized, Mutation, ObjectType, Field } from 'type-graphql'
 import User from '../../entity/User'
 import Role, { RoleName } from '../../entity/Role';
 import UserInput from './UserInput/UserInput';
@@ -22,7 +22,7 @@ export default class UserResolver {
 
   // Handle the user login
   async loginUser(
-    @Arg('data') { username, password }: LoginInput
+    @Arg('data') { username, password}: LoginInput
   ): Promise<LoginAnswer | GraphQLError> {
     // we search the user who wants to log among the list of users
     const user = await User.findOne({ username }, {
@@ -45,7 +45,7 @@ export default class UserResolver {
     return { token }
   }
 
-
+  @Authorized([RoleName.ADMIN, RoleName.MANAGER])
   @Query(() => [User])
   async getUsers(): Promise<User[] | GraphQLError> {
 
@@ -77,9 +77,9 @@ export default class UserResolver {
     }
   }
 
+  @Authorized([RoleName.ADMIN])
   @Mutation(() => User)
   async updateUserRole(
-    @Arg('adminId') adminId: number,
     @Arg("data") { userId, roleId }: UpdateRoleInput
   ): Promise<User | GraphQLError> {
 
@@ -90,19 +90,6 @@ export default class UserResolver {
         return new GraphQLError('no user found')
       }
 
-      const isAdmin = await User.findOne({
-        where: {
-          id: adminId,
-          role: {
-            label: RoleName.ADMIN
-          }
-        },
-        relations: ['role']
-      })
-
-      if (!isAdmin) {
-        return new GraphQLError('You can\'t granted access, because you haven\'t not right access')
-      }
       const newRole = await Role.findOne({ id: roleId }, { relations: ['users'] })
 
       user.role = newRole as Role;

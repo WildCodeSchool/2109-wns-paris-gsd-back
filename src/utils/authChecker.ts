@@ -22,7 +22,6 @@ const customAuthChecker: AuthChecker<any, any> = ({ context }, roles) => {
         return true;
       }
 
-
       return false
 
     } catch (err) {

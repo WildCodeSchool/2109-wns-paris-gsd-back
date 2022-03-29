@@ -95,8 +95,8 @@ const seedingDB = async () => {
       }
 
       //!  ROLE USER
-      const defaultRole = await Role.findOne({ id: 4 });
-      const managerRole = await Role.findOne({ id: 2 });
+      const defaultRole = await Role.findOne({ id: 3 });
+      const managerRole = await Role.findOne({ id: 1 });
 
       /**
        * ? CREATE USERS

@@ -16,9 +16,9 @@ export default class RoleResolver {
 
   }
 
+  @Authorized([RoleName.ADMIN])
   @Mutation(() => Role)
   async addRole(@Arg("data") data: RoleInput): Promise<Role> {
-
     const role = Role.create({ ...data });
 
     await role.save();
