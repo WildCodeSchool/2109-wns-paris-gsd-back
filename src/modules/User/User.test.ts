@@ -1,7 +1,7 @@
 import { ApolloServer, ExpressContext, gql } from 'apollo-server-express'
 
 import { Secret, sign } from 'jsonwebtoken'
-import mockRequest from 'test/setup'
+import mockRequest from '../../test/setup'
 import createServer from '../../server'
 import User from '../../entity/User'
 import Role, { RoleName } from '../../entity/Role'
