@@ -1,11 +1,29 @@
-import { ApolloServer, gql } from 'apollo-server-express'
+import { ApolloServer, ExpressContext, gql } from 'apollo-server-express'
 
+import { Secret, sign } from 'jsonwebtoken'
 import createServer from '../../server'
 import User from '../../entity/User'
 import Role, { RoleName } from '../../entity/Role'
 import UserInput from './UserInput/UserInput'
 
 let server: ApolloServer
+
+const mockRequest = (token: string = '') => (
+  {
+    headers: {
+      authorization: token,
+    }
+  }
+)
+
+const mockToken = (payload: {}) => (
+  sign(
+    payload,
+    process.env.JSON_TOKEN_KEY as Secret,
+    { expiresIn: '24h' }
+  )
+)
+
 
 beforeAll(async () => {
   server = await createServer()
@@ -35,10 +53,13 @@ describe('login resolver', () => {
         }
       }
 
-      const { data, errors } = await server.executeOperation({
-        query: addUserMutation,
-        variables,
-      })
+      const { data, errors } = await server.executeOperation(
+        {
+          query: addUserMutation,
+          variables,
+        },
+        { req: mockRequest() } as ExpressContext
+      )
 
       expect(!errors).toBeTruthy()
 
@@ -90,6 +111,24 @@ describe('login resolver', () => {
       const userCreated3 = User.create(users[2])
       await userCreated3.save();
 
+      /**
+       * Here we have to change our test to implement a JWT and verify our implementation
+       */
+      const adminRole = await Role.findOne({ label: RoleName.ADMIN })
+      const adminUser = User.create({
+        firstName: "john",
+        lastName: "admin",
+        username: "admin",
+        email: "admin@toto.td",
+        password: "lennon",
+        role: adminRole
+      });
+
+      await adminUser.save();
+      const payload = { id: adminUser.id, username: adminUser.username, role: adminUser.role.label }
+
+      const token = mockToken(payload)
+
       const getUsersQuery = gql`
       query getUsers {
         getUsers {
@@ -100,7 +139,9 @@ describe('login resolver', () => {
       `
       const { data, errors } = await server.executeOperation({
         query: getUsersQuery,
-      })
+      },
+        { req: mockRequest(token) } as ExpressContext
+      )
 
       expect(!errors).toBeTruthy()
 
@@ -138,8 +179,8 @@ describe('login resolver', () => {
     ]
 
     const updateRoleMutation = gql`
-      mutation updateUserRole( $data: UpdateRoleInput!, $adminId: Float!,) {
-        updateUserRole(data: $data, adminId: $adminId) {
+      mutation updateUserRole( $data: UpdateRoleInput!) {
+        updateUserRole(data: $data) {
           username
           role {
             label
@@ -160,17 +201,24 @@ describe('login resolver', () => {
 
 
       const variables = {
-        adminId: adminUser.id,
         data: {
           userId: regularUser.id,
           roleId: developerRole!.id,
         }
       }
+
+      const payload = { id: adminUser.id, username: adminUser.username, role: adminUser.role.label }
+
+      const token = mockToken(payload)
+
       // !recuperer ce user directement via typeORM
-      const { data, errors } = await server.executeOperation({
-        query: updateRoleMutation,
-        variables,
-      })
+      const { data, errors } = await server.executeOperation(
+        {
+          query: updateRoleMutation,
+          variables
+        },
+        { req: mockRequest(token) } as ExpressContext
+      )
 
       expect(!errors).toBeTruthy()
 
@@ -195,9 +243,12 @@ describe('login resolver', () => {
       const regularUser = User.create({ ...userInfos[1] });
       await regularUser.save();
 
+      const payload = { id: developerUser.id, username: developerUser.username, role: developerUser.role.label }
+
+      const token = mockToken(payload)
+
 
       const variables = {
-        adminId: developerUser.id,
         data: {
           userId: regularUser.id,
           roleId: developerRole!.id,
@@ -207,11 +258,12 @@ describe('login resolver', () => {
       const { errors } = await server.executeOperation({
         query: updateRoleMutation,
         variables,
-      })
+      },
+        { req: mockRequest(token) } as ExpressContext
+      )
 
       expect(errors).toBeTruthy()
     })
   })
 
 })
-
