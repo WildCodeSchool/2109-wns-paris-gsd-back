@@ -1,22 +1,12 @@
 import { ApolloServer, ExpressContext, gql } from 'apollo-server-express'
 
-import { Secret, sign } from 'jsonwebtoken'
-import mockRequest from '../../test/setup'
+import { mockRequest, mockToken } from '../../test/setup'
 import createServer from '../../server'
 import User from '../../entity/User'
 import Role, { RoleName } from '../../entity/Role'
 import UserInput from './UserInput/UserInput'
 
 let server: ApolloServer
-
-
-const mockToken = (payload: {}) => (
-  sign(
-    payload,
-    process.env.JSON_TOKEN_KEY as Secret,
-    { expiresIn: '24h' }
-  )
-)
 
 
 beforeAll(async () => {
