@@ -4,6 +4,13 @@ import Database from 'better-sqlite3'
 import { connectSqlite } from '../createConnection'
 import Role, { RoleName } from '../entity/Role';
 
+const mockRequest = (token: string = '') => (
+  {
+    headers: {
+      authorization: token,
+    }
+  }
+)
 
 let connection: any
 const testdb = new Database(':memory:', {
@@ -36,3 +43,5 @@ beforeEach(async () => {
   // utilisateur
   // comments
 });
+
+export default mockRequest
