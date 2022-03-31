@@ -37,10 +37,9 @@ export default class ProjectResolver {
   @Query(() => Project)
   async getProjectById(
     @Arg("id") id: number,
-    @Ctx() context:  {payload: JwtPayload},
-  
-    ): Promise<Project | undefined | GraphQLError> 
-  {
+    @Ctx() context: { payload: JwtPayload },
+
+  ): Promise<Project | undefined | GraphQLError> {
     try {
       const project = await Project.findOne({ id }, { relations: ['users', 'users.role', 'tasks', 'tasks.taskCreator', 'tasks.taskCreator.role'] })
 
@@ -48,8 +47,7 @@ export default class ProjectResolver {
         return new GraphQLError('Y a une couille dans le project qui existe pas')
       }
 
-
-      const isUserMember = !!project.users.find(
+      const isUserMember = !project.users.find(
         (user) => user.id === context.payload.id || context.payload.role === RoleName.ADMIN
       )
 
@@ -68,11 +66,10 @@ export default class ProjectResolver {
   @Mutation(() => Project)
   async addProject(
     @Arg('data') { ...projectData }: ProjectInput,
-    @Ctx() context:  {payload: JwtPayload})
-    : Promise<Project | GraphQLError> 
-    {
+    @Ctx() context: { payload: JwtPayload })
+    : Promise<Project | GraphQLError> {
     // get user to see if he has sufficient role to create
-    const user = await User.findOne({ id: context.payload.id}, { relations: ['role'] });
+    const user = await User.findOne({ id: context.payload.id }, { relations: ['role'] });
 
     if (user?.role.label !== RoleName.MANAGER) {
       return new GraphQLError("The user can't create a project");
@@ -89,9 +86,9 @@ export default class ProjectResolver {
   @Authorized([RoleName.ADMIN, RoleName.MANAGER])
   @Mutation(() => ProjectResponse)
   async updateProject(
-    @Arg('data') { project_id, ...projectData }: ProjectUpdateInput, 
-    @Ctx() context:  {payload: JwtPayload})
-  : Promise<ProjectResponse | GraphQLError> {
+    @Arg('data') { project_id, ...projectData }: ProjectUpdateInput,
+    @Ctx() context: { payload: JwtPayload })
+    : Promise<ProjectResponse | GraphQLError> {
     // get the project
     const project = await Project.findOne({ id: project_id, }, { relations: ['users', 'users.role'] });
     if (!project) {
@@ -100,6 +97,8 @@ export default class ProjectResolver {
 
     // get the owner_id 
     const projectOwner = project.users.find((user) => user.id === context.payload.id);
+
+    console.log(projectOwner)
 
     if (!projectOwner) {
       return new GraphQLError('user has no right to update the project , y a une couille')
@@ -119,9 +118,9 @@ export default class ProjectResolver {
   @Mutation(() => ProjectResponse)
   async addMemberToProject(
     @Arg('data') { projectId, memberId }: AddMemberToProjectInput,
-    @Ctx() context:  {payload: JwtPayload}
+    @Ctx() context: { payload: JwtPayload }
   )
-  : Promise<ProjectResponse | GraphQLError> {
+    : Promise<ProjectResponse | GraphQLError> {
     try {
       const project = await Project.findOneOrFail({ id: projectId }, { relations: ['users', 'users.role'] })
 
