@@ -5,16 +5,16 @@ dotenv.config({
   path: process.env.NODE_ENV === 'development' ? 'env-dev.env' : 'env-prod.env'
 })
 
-console.log(process.env.NODE_ENV);
-
 export async function connectPostgres() {
-  await createConnection({
+  const connection = await createConnection({
     type: 'postgres',
     url: process.env.DB_URL,
     synchronize: true,
     logging: true,
     entities: [process.env.TYPEORM_ENTITIES as string],
-  })
+  });
+
+  return connection;
 }
 
 export async function connectSqlite() {

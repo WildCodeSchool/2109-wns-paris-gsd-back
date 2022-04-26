@@ -1,6 +1,6 @@
 # 2109-wns-paris-gsd-back
 
-# Setup
+## Setup
 
 [Yarn](https://classic.yarnpkg.com/lang/en/docs/install/#debian-stable) ` v1.22.15`
 
@@ -10,7 +10,7 @@
 
 [TypeScript](https://www.typescriptlang.org/)
 
-# Principales Dependencies
+## Principales Dependencies
 
 [GraphQL](https://graphql.org/)
 
@@ -18,7 +18,7 @@
 
 [Express](http://expressjs.com/)
 
-# Create database in local
+## Create database in local
 
 After you have installed postgresql in your setup, in the shell terminal please type this commands, make sure you logged with postgres user.
 
@@ -39,8 +39,14 @@ CREATE DATABASE "dbname" OWNER "username";
 
 Please following the file .env.example and create a copy of this and change in POSTGRES_URL your credentials.
 
-# Start Project
+## Start Project
 
 First time `yarn` to install dependencies or update dependencies
 
 `yarn start` to start project, enjoy...
+
+## Docker
+
+To launch the project in docker
+
+`docker-compose -f ./docker-compose.dev.yml up --build`

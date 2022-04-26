@@ -12,6 +12,8 @@ import {
 
 import { Field, ID, ObjectType, Root } from 'type-graphql'
 
+import ENUM_DATA_TYPE from '../constants/ENUM_DATA_TYPE'
+
 import Comment from './Comment'
 import Project from './Project'
 import User from './User'
@@ -49,7 +51,7 @@ class Task extends BaseEntity {
   @CreateDateColumn({ name: 'created_at' })
   starting_time: Date
 
-  @Field()
+  @Field(() => String)
   @Column()
   ending_time: Date
 
@@ -71,7 +73,9 @@ class Task extends BaseEntity {
 
   @Field()
   @Column({
-    type: 'text',
+    type: ENUM_DATA_TYPE,
+    enum: ENUM_DATA_TYPE === 'enum' ? StatusName : undefined,
+    default: StatusName.NEW,
   })
   status: StatusName
 
@@ -79,7 +83,7 @@ class Task extends BaseEntity {
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[]
 
-  @Field(() => Project)
+  @Field(() => Project, { nullable: true })
   @ManyToOne(() => Project, (project) => project.tasks)
   @JoinColumn({ name: 'project_id', referencedColumnName: 'id' })
   project: Project

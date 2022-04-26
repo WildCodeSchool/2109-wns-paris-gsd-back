@@ -25,7 +25,7 @@ class Comment extends BaseEntity {
   content: string
 
   @Field()
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({name: 'created_at'})
   createdAt: Date
 
   // I have to add the foreign key Column by hand if i want to query with find({foreignKey: number})

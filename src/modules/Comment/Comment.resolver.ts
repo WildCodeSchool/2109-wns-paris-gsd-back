@@ -18,3 +18,7 @@ export default class CommentResolver {
         return newComment;
     }
 }
+
+// TODO link comment to the author
+// TODO update commnent (should have)
+// TODO delete comment (nice to have)

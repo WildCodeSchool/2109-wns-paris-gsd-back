@@ -18,6 +18,6 @@ export default class UpdateDeleteTaskInput {
   @Field({ nullable: true })
   status?: StatusName
 
-  @Field(() => Date, { nullable: true })
+  @Field(() => String, { nullable: true })
   ending_time?: Date
 }
