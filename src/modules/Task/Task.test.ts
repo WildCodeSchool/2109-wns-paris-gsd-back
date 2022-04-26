@@ -15,6 +15,9 @@ beforeAll(async () => {
   server = await createServer()
 })
 
+// TODO fix this !!!!!
+
+
 describe('Task resolver', () => {
   /**
    * QUERY
@@ -27,109 +30,109 @@ describe('Task resolver', () => {
 
   describe('Get all tasks by user project', () => {
 
-    beforeAll(async () => {
-      const managerRole = await Role.findOne({ label: RoleName.MANAGER });
+    // beforeAll(async () => {
+    //   const managerRole = await Role.findOne({ label: RoleName.MANAGER });
 
-      const manager = User.create({
-        firstName: "RicoManager",
-        lastName: "La",
-        username: "ricoManager.dev",
-        email: "rico.manager@wild.com",
-        password: "j.lennon45",
-        role: managerRole
-      });
+    //   const manager = User.create({
+    //     firstName: "RicoManager",
+    //     lastName: "La",
+    //     username: "ricoManager.dev",
+    //     email: "rico.manager@wild.com",
+    //     password: "j.lennon45",
+    //     role: managerRole
+    //   });
 
-      await manager.save();
+    //   await manager.save();
 
-      const developerRole = await Role.findOne({ label: RoleName.DEVELOPER });
+    //   const developerRole = await Role.findOne({ label: RoleName.DEVELOPER });
 
-      const developer = User.create({
-        firstName: "Ricodeveloper",
-        lastName: "La",
-        username: "ricodeveloper.dev",
-        email: "rico.developer@wild.com",
-        password: "j.lennon45",
-        role: developerRole
-      });
+    //   const developer = User.create({
+    //     firstName: "Ricodeveloper",
+    //     lastName: "La",
+    //     username: "ricodeveloper.dev",
+    //     email: "rico.developer@wild.com",
+    //     password: "j.lennon45",
+    //     role: developerRole
+    //   });
 
-      await developer.save();
+    //   await developer.save();
 
-      const projects = [
-        {
-          name: "projet1",
-          ending_time: new Date(),
-          users: [developer, manager]
-        },
-        {
-          name: "projet2",
-          ending_time: new Date(),
-          users: [manager]
-        },
-      ];
+    //   const projects = [
+    //     {
+    //       name: "projet1",
+    //       ending_time: new Date(),
+    //       users: [developer, manager]
+    //     },
+    //     {
+    //       name: "projet2",
+    //       ending_time: new Date(),
+    //       users: [manager]
+    //     },
+    //   ];
 
 
-      project1 = Project.create(projects);
-      await project1[0].save();
-      await project1[1].save()
-      // console.log(project1)
+    //   project1 = Project.create(projects);
+    //   await project1[0].save();
+    //   await project1[1].save()
+    //   // console.log(project1)
 
-      // const  projet2 = Project.create({ ...projects[1] });
-      // await projet2.save();
+    //   // const  projet2 = Project.create({ ...projects[1] });
+    //   // await projet2.save();
 
-      const tasks = [
-        {
-          title: "tache1",
-          description: "tache1 desc",
-          ending_time: new Date(),
-          advancement: 18,
-          status: StatusName.NEW,
-          // taskCreator: developer
-        },
-        // {
-        //   title: "tache2",
-        //   description: "tache2 desc",
-        //   ending_time: new Date(),
-        //   advancement: 18,
-        //   project: projet1,
-        //   taskCreator: developer
+    //   const tasks = [
+    //     {
+    //       title: "tache1",
+    //       description: "tache1 desc",
+    //       ending_time: new Date(),
+    //       advancement: 18,
+    //       status: StatusName.NEW,
+    //       // taskCreator: developer
+    //     },
+    //     // {
+    //     //   title: "tache2",
+    //     //   description: "tache2 desc",
+    //     //   ending_time: new Date(),
+    //     //   advancement: 18,
+    //     //   project: projet1,
+    //     //   taskCreator: developer
 
-        // },
-        // {
-        //   title: "tache3",
-        //   description: "tache3 desc",
-        //   ending_time: new Date(),
-        //   advancement: 18,
-        //   project: projet1,
-        //   taskCreator: developer
+    //     // },
+    //     // {
+    //     //   title: "tache3",
+    //     //   description: "tache3 desc",
+    //     //   ending_time: new Date(),
+    //     //   advancement: 18,
+    //     //   project: projet1,
+    //     //   taskCreator: developer
 
-        // },
-        // {
-        //   title: "tache4",
-        //   description: "tache4 desc",
-        //   ending_time: new Date(),
-        //   advancement: 36,
-        //   project: projet2,
-        //   taskCreator: developer
+    //     // },
+    //     // {
+    //     //   title: "tache4",
+    //     //   description: "tache4 desc",
+    //     //   ending_time: new Date(),
+    //     //   advancement: 36,
+    //     //   project: projet2,
+    //     //   taskCreator: developer
 
-        // },
-        // {
-        //   title: "tache5",
-        //   description: "tache5 desc",
-        //   ending_time: new Date(),
-        //   advancement: 75,
-        //   project: projet2,
-        //   taskCreator: developer
+    //     // },
+    //     // {
+    //     //   title: "tache5",
+    //     //   description: "tache5 desc",
+    //     //   ending_time: new Date(),
+    //     //   advancement: 75,
+    //     //   project: projet2,
+    //     //   taskCreator: developer
 
-        // },
-      ];
+    //     // },
+    //   ];
 
-      task1 = Task.create({ ...tasks[0] })
-      await task1.save();
+    //   task1 = Task.create({ ...tasks[0] })
+    //   await task1.save();
 
-      await Project.update({ id: project1[0].id }, { tasks: [task1] })
+    //   await Project.update({ id: project1[0].id }, { tasks: [task1] })
 
-      // await Task.update({id: task1.id}, {...task1, project: project1[0]})
-    });
+    //   // await Task.update({id: task1.id}, {...task1, project: project1[0]})
+    // });
 
     it('should retrieve an array of tasks where user has member', async () => {
       // todo  

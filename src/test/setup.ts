@@ -1,9 +1,25 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Database from 'better-sqlite3'
+import { Secret, sign } from 'jsonwebtoken';
 
 import { connectSqlite } from '../createConnection'
 import Role, { RoleName } from '../entity/Role';
 
+export const mockRequest = (token: string = '') => (
+  {
+    headers: {
+      authorization: token,
+    }
+  }
+)
+
+export const mockToken = (payload: {}) => (
+  sign(
+    payload,
+    process.env.JSON_TOKEN_KEY as Secret,
+    { expiresIn: '24h' }
+  )
+)
 
 let connection: any
 const testdb = new Database(':memory:', {
@@ -36,3 +52,4 @@ beforeEach(async () => {
   // utilisateur
   // comments
 });
+

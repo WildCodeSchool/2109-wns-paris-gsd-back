@@ -8,6 +8,4 @@ export default class ProjectInput {
   @Field()
   ending_time: Date
 
-  @Field()
-  user_id: number
 }

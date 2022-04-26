@@ -1,12 +1,15 @@
 /* eslint-disable max-classes-per-file */
+import { JwtPayload } from 'jsonwebtoken'
 import {
   Arg,
   Field,
   ID,
   Mutation,
+  Authorized,
   ObjectType,
   Query,
   Resolver,
+  Ctx,
 } from 'type-graphql'
 import { GraphQLError } from 'graphql'
 import { RoleName } from '../../entity/Role'
@@ -15,7 +18,6 @@ import Task from '../../entity/Task'
 import TaskInput from './TaskInput/TaskInput'
 import UpdateDeleteTaskInput from './TaskInput/UpdateDeleteTaskInput'
 import ChangeAssigneeInput from './TaskInput/ChangeAssigneeInput'
-import AllTaskInput from './TaskInput/AllTaskInput'
 import AllTaskByProjectIdInput from './TaskInput/AllTaskByProjectIdInput'
 import TaskIdInput from './TaskInput/TaskIdInput'
 import Project from '../../entity/Project'
@@ -33,7 +35,7 @@ export default class TaskResolver {
   /*
    **  QUERY
    */
-
+  @Authorized([RoleName.ADMIN, RoleName.MANAGER, RoleName.DEVELOPER])
   @Query(() => [Task])
   async getTasks(): Promise<Task[]> {
     // that's how you can Load task with their comment with left join (no n + 1 issue).
@@ -45,14 +47,17 @@ export default class TaskResolver {
         'taskCreator',
         'taskCreator.role',
         'project',
+        'project.users',
+        'project.users.role'
       ],
     })
     return tasks
   }
 
+  @Authorized([RoleName.ADMIN, RoleName.MANAGER, RoleName.DEVELOPER])
   @Query(() => [Task])
   async getAllTasksByUserProject(
-    @Arg('data') { userId }: AllTaskInput
+    @Ctx() context:  {payload: JwtPayload},
   ): Promise<Task[] | GraphQLError> {
     try {
       const tasks = await Task.find({
@@ -61,7 +66,7 @@ export default class TaskResolver {
 
       // will get all tasks from all project the user is a member from
       return tasks.filter((task) =>
-        task.project.users.find((user) => +user.id === +userId)
+        task.project.users.find((user) => +user.id === +context.payload.id)
       )
       // return tasks;
     } catch (error) {
@@ -69,6 +74,7 @@ export default class TaskResolver {
     }
   }
 
+  @Authorized([RoleName.ADMIN, RoleName.MANAGER, RoleName.DEVELOPER])
   @Query(() => [Task])
   async getTasksByProjectId(
     @Arg('data') { projectId }: AllTaskByProjectIdInput
@@ -89,6 +95,7 @@ export default class TaskResolver {
     }
   }
 
+  @Authorized([RoleName.ADMIN, RoleName.MANAGER, RoleName.DEVELOPER])
   @Query(() => Task)
   async getTaskById(
     @Arg('data') { taskId }: TaskIdInput
@@ -117,10 +124,9 @@ export default class TaskResolver {
   /*
    **  MUTATION
    */
-
+  @Authorized([RoleName.ADMIN, RoleName.MANAGER])
   @Mutation(() => Task)
   async addTask(
-    @Arg('managerId') managerId: number,
     @Arg('data') { creatorId, projectId, ...taskData }: TaskInput
   ): Promise<Task | GraphQLError> {
     try {
@@ -131,17 +137,6 @@ export default class TaskResolver {
         { relations: ['users', 'users.role'] }
       )
 
-      const isMemberAndManager = !!project?.users.find(
-        (currentUser) =>
-          managerId === currentUser.id &&
-          currentUser.role.label === RoleName.MANAGER
-      )
-
-      if (!isMemberAndManager) {
-        return new GraphQLError(
-          'user is not authorized to add a task, y a une couille'
-        )
-      }
       const task = Task.create({ ...taskData, taskCreator: user, project })
 
       await task.save()
@@ -152,10 +147,12 @@ export default class TaskResolver {
     }
   }
 
+  @Authorized([RoleName.ADMIN, RoleName.MANAGER, RoleName.DEVELOPER])
   @Mutation(() => Task)
   async updateTaskbyId(
-    @Arg('userId') userId: number,
-    @Arg('data') data: UpdateDeleteTaskInput
+    @Arg('data') data: UpdateDeleteTaskInput,
+    @Ctx() context:  {payload: JwtPayload},
+  
   ): Promise<UpdateTaskResponse | GraphQLError> {
     try {
       const taskToUpdate = await Task.findOneOrFail(
@@ -164,7 +161,7 @@ export default class TaskResolver {
       )
 
       // making sure that the user is member of the project before updating
-      const user = await User.findOneOrFail({ id: userId })
+      const user = await User.findOneOrFail({ id: context.payload.id })
       const isMember = !!taskToUpdate.project.users.find(
         (currentUser) => user.id === currentUser.id
       )
@@ -186,10 +183,12 @@ export default class TaskResolver {
     }
   }
 
+  @Authorized([RoleName.ADMIN, RoleName.MANAGER])
   @Mutation(() => Task)
   async changeAssignee(
-    @Arg('userId') userId: number,
+    @Ctx() context:  {payload: JwtPayload},
     @Arg('data') data: ChangeAssigneeInput
+
   ): Promise<Task | GraphQLError> {
     try {
       const task = await Task.findOneOrFail(
@@ -198,11 +197,11 @@ export default class TaskResolver {
       )
       // make sure that the guy trying to change assignee
 
-      const isUserMemberAndManager = !!task.project.users.find(
-        (user) => user.id === userId && user.role.label === RoleName.MANAGER
+      const isUserMember = !!task.project.users.find(
+        (user) => user.id === context.payload.id
       )
 
-      if (!isUserMemberAndManager) {
+      if (!isUserMember) {
         return new GraphQLError("User can't change assignee, y a une couille")
       }
 
@@ -230,9 +229,10 @@ export default class TaskResolver {
     }
   }
 
+  @Authorized([RoleName.ADMIN, RoleName.MANAGER])
   @Mutation(() => Task)
   async deleteTaskbyId(
-    @Arg('userId') userId: number,
+    @Ctx() context:  {payload: JwtPayload},
     @Arg('data') data: UpdateDeleteTaskInput
   ): Promise<Task | GraphQLError> {
     try {
@@ -240,16 +240,6 @@ export default class TaskResolver {
         { id: data.id },
         { relations: ['project', 'project.users', 'project.users.role'] }
       )
-
-      const manager = taskTodelete.project.users.find(
-        (user) => user.role.label === RoleName.MANAGER
-      )
-
-      if (!manager || manager.id !== userId) {
-        return new GraphQLError(
-          "can't delete the task, you are not the manager"
-        )
-      }
 
       await Task.delete(data.id)
       return taskTodelete

@@ -1,8 +1,9 @@
-import { ApolloServer, gql } from 'apollo-server-express'
+import { ApolloServer, ExpressContext, gql } from 'apollo-server-express'
 import createServer from '../../server';
 import Project from '../../entity/Project';
 import User from '../../entity/User';
 import Role, { RoleName } from '../../entity/Role';
+import { mockRequest, mockToken } from '../../test/setup';
 
 let server: ApolloServer
 let user: User
@@ -23,7 +24,7 @@ beforeAll(async () => {
 
 describe('Project Resolver', () => {
   describe('Get all Projects', () => {
-    it('should retrieve an empty array projects', async () => {
+    it('should retrieve an empty array projects when a user is ADMIN', async () => {
       const getProjectsQuery = gql`
         query getProjects {
           getProjects {
@@ -31,10 +32,22 @@ describe('Project Resolver', () => {
           }
         }
       `
+      const roleAdmin = await Role.findOne({ label: RoleName.ADMIN })
+
+      user.role = roleAdmin as Role;
+
+      await user.save()
+
+      const payload = { id: user.id, username: user.username, role: user.role.label }
+
+      const token = mockToken(payload)
+
 
       const { data, errors } = await server.executeOperation({
         query: getProjectsQuery,
-      })
+      },
+        { req: mockRequest(token) } as ExpressContext
+      )
 
       expect(!errors).toBeTruthy()
 
@@ -42,7 +55,7 @@ describe('Project Resolver', () => {
       expect(data!.getProjects).toEqual(expect.arrayContaining(expectedResult))
     });
 
-    it('should retrieve a list of projects ', async () => {
+    it('should retrieve a list of projects when the user is Manager ', async () => {
       const project = Project.create({
         name: "Project test",
         ending_time: new Date()
@@ -60,9 +73,23 @@ describe('Project Resolver', () => {
           }
         }
       `
+
+      const roleManager = await Role.findOne({ label: RoleName.MANAGER })
+
+      user.role = roleManager as Role;
+
+      await user.save()
+
+      const payload = { id: user.id, username: user.username, role: user.role.label }
+
+      const token = mockToken(payload)
+
+
       const { data, errors } = await server.executeOperation({
         query: getProjectsQuery,
-      })
+      },
+        { req: mockRequest(token) } as ExpressContext
+      )
 
       expect(!errors).toBeTruthy()
 
@@ -100,15 +127,16 @@ describe('Project Resolver', () => {
 
       await user.save()
 
+      const payload = { id: user.id, username: user.username, role: user.role.label }
+
+      const token = mockToken(payload)
+
       const { data, errors } = await server.executeOperation({
         query: addProjectMutation,
-        variables: {
-          data: {
-            ...variables.data,
-            user_id: user.id
-          }
-        },
-      })
+        variables
+      },
+        { req: mockRequest(token) } as ExpressContext
+      )
 
       expect(!errors).toBeTruthy()
 
@@ -124,15 +152,16 @@ describe('Project Resolver', () => {
 
       await user.save()
 
+      const payload = { id: user.id, username: user.username, role: user.role.label }
+
+      const token = mockToken(payload)
+
       const { errors } = await server.executeOperation({
         query: addProjectMutation,
-        variables: {
-          data: {
-            ...variables.data,
-            user_id: user.id
-          }
-        },
-      })
+        variables
+      },
+        { req: mockRequest(token) } as ExpressContext
+      )
 
       expect(errors).toBeTruthy()
     });
@@ -141,6 +170,56 @@ describe('Project Resolver', () => {
   // TODO update project
   describe('Update a project', () => {
     it('should retrieve a message for updated successfully', async () => {
+      const project = Project.create({
+        name: "Project test",
+        ending_time: new Date().toISOString()
+      })
+
+      await project.save()
+
+      const roleDeveloper = await Role.findOne({ label: RoleName.ADMIN })
+
+      user.role = roleDeveloper as Role;
+
+      await user.save()
+
+      const pushMemberInProject = await Project.findOne({ id: project.id })
+
+      pushMemberInProject!.users = [user]
+
+      await pushMemberInProject!.save()
+
+      const updateProjectMutation = gql`
+        mutation Mutation($data: ProjectUpdateInput!) {
+          updateProject(data: $data) {
+            message
+          }
+        }
+      `
+      const payload = { id: user.id, username: user.username, role: user.role.label }
+
+      const token = mockToken(payload)
+
+      const { id } = await Project.findOneOrFail({ id: project.id })
+
+      const variables = {
+        data: {
+          project_id: id,
+          name: 'Un nouveau nom de proyait',
+          ending_time: new Date().toISOString(),
+        }
+      }
+
+      const { data, errors } = await server.executeOperation({
+        query: updateProjectMutation,
+        variables
+      },
+        { req: mockRequest(token) } as ExpressContext
+      )
+
+      expect(!errors).toBeTruthy()
+
+      expect(data!.updateProject.message).toEqual("Updated successfully")
 
     });
 
@@ -168,21 +247,48 @@ describe('Project Resolver', () => {
   describe('Get a project with id params', () => {
     it('should retrieve a data of project by id', async () => {
 
-      // const getProjectByIdQuery = gql`
-      //   query getProjectById(id: number!) {
-      //     name
-      //   }
-      // `
+      const project = Project.create({
+        name: "Project test",
+        ending_time: new Date().toISOString()
+      })
 
-      // const { data, errors } = await server.executeOperation({
-      //   query: getProjectByIdQuery,
-      // })
+      await project.save()
 
-      // expect(!errors).toBeTruthy()
+      const getProjectByIdQuery = gql`
+      query GetProjectById($getProjectByIdId: Float!) {
+        getProjectById(id: $getProjectByIdId) {
+          id
+          name
+        }
+      }
+      `
+      const roleAdmin = await Role.findOne({ label: RoleName.ADMIN })
 
-      // const expectedResult = await Project.find()
-      // data!.getProjectById[0] = +data!.getProjectById[0]
-      // expect(data!.getProjectById).toEqual(expect.arrayContaining(expectedResult))
+      user.role = roleAdmin as Role;
+
+      await user.save()
+
+      const payload = { id: user.id, username: user.username, role: user.role.label }
+
+      const token = mockToken(payload)
+
+      const { id } = await Project.findOneOrFail({ id: project.id })
+
+      const variables = {
+        getProjectByIdId: id
+      }
+
+      const { data, errors } = await server.executeOperation({
+        query: getProjectByIdQuery,
+        variables
+      },
+        { req: mockRequest(token) } as ExpressContext
+      )
+
+      expect(!errors).toBeTruthy()
+
+      const expectedResult = await Project.find()
+      expect(data!.getProjectById.name).toEqual(expectedResult[0].name)
     });
   });
 });

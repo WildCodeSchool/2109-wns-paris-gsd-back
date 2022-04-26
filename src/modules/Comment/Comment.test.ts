@@ -1,11 +1,13 @@
-import { ApolloServer, gql } from 'apollo-server-express'
+import { ApolloServer, ExpressContext, gql } from 'apollo-server-express'
+import { mockRequest } from '../../test/setup';
 import createServer from '../../server';
 import Task from '../../entity/Task';
 
 let server: ApolloServer
 
+
 beforeAll(async () => {
-  server = await createServer() 
+  server = await createServer()
 })
 
 describe('Comment Resolver', () => {
@@ -38,18 +40,20 @@ describe('Comment Resolver', () => {
 
       const { data, errors } = await server.executeOperation({
         query: addCommentMutation,
-        variables,
-      })
+        variables
+      },
+        { req: mockRequest() } as ExpressContext
+      )
 
-     
+
       expect(!errors).toBeTruthy()
 
-      const expectedResult = await Task.findOne({ id: task.id }, {relations: ["comments"]})
+      const expectedResult = await Task.findOne({ id: task.id }, { relations: ["comments"] })
 
       expect(data!.addComment.content).toEqual(expectedResult?.comments[0].content);
-      
-      
+
+
     })
 
-  })  
+  })
 })
