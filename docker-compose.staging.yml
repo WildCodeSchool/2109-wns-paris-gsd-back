@@ -2,25 +2,20 @@ version: '3'
 
 services:
   server:
-    image: getshitdonewild/getshitdone-back 
+    image: getshitdonewild/getshitdone-back-staging 
     command: sh -c "yarn build && yarn seed:staging &&yarn start"
     env_file:
     - ./.env
     - ./env-prod.env
     expose:
       - 5000
-    # environment:
-    #   - NODE_ENV=production
-    #   - SERVER_PORT=5000
     depends_on:
       - postgres
   client:
-    image: getshitdonewild/getshitdone-front
+    image: getshitdonewild/getshitdone-front-staging
     command: sh -c "yarn build"
     volumes:
       - web-client-build:/app/build
-    environment:
-      - NODE_ENV=production  
   postgres:
     env_file:
       - .env

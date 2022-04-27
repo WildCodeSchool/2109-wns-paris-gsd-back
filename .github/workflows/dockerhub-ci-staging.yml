@@ -1,9 +1,9 @@
-name: dockerhub-ci
+name: dockerhub-ci-staging
 
 on:
   push:
     branches:
-      - 'main'
+      - 'staging'
 
 jobs:
   docker:
@@ -38,6 +38,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./
-          file: ./Dockerfile-prod
+          file: ./Dockerfile-staging
           push: true
-          tags: getshitdonewild/getshitdone-back:latest
+          tags: getshitdonewild/getshitdone-back-staging:latest
