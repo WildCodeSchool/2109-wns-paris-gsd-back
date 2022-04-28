@@ -33,13 +33,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Check out code
         uses: actions/checkout@v2
-
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          images: name/app
-
       - name: Create env file
         run: |
           touch .env
@@ -60,4 +53,4 @@ jobs:
           context: ./
           file: ./Dockerfile-staging
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: getshitdonewild/getshitdone-back-staging:v1
