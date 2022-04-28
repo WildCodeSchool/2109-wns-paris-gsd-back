@@ -17,7 +17,6 @@ jobs:
         # uses: peter-evans/create-pull-request@v4
         # with:
         #   branch: staging
-       name: Create Pull Request
         uses: peter-evans/create-pull-request@v3.10.1
         with:
           # token: ${{ secrets.GH_TOKEN }}
