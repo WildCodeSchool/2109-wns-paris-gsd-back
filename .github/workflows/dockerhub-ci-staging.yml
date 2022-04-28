@@ -9,12 +9,13 @@ jobs:
   stagingToMain:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: main
+      # - uses: actions/checkout@v3
+      #   with:
+      #     ref: main
       - name: Create PR to PROD
         uses: peter-evans/create-pull-request@v4
-        with: main-staging
+        with:
+          branch: main-staging
   docker:
     runs-on: ubuntu-latest
     steps:
