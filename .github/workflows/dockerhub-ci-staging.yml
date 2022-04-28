@@ -6,6 +6,12 @@ on:
       - 'staging'
 
 jobs:
+  stagingToMain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create PR to PROD
+        uses: peter-evans/create-pull-request@v4
+        with: main-staging
   docker:
     runs-on: ubuntu-latest
     steps:
