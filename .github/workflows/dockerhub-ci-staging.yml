@@ -12,11 +12,11 @@ jobs:
       - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v3
         with:
-          ref: staging
+          ref: main
       - name: Create PR to PROD
         uses: peter-evans/create-pull-request@v4
         with:
-          branch: main
+          branch: staging
   # docker:
   #   runs-on: ubuntu-latest
   #   steps:
