@@ -3,13 +3,14 @@ import 'reflect-metadata'
 
 import express from 'express'
 import createServer from './server'
-import {connectPostgres} from './createConnection'
+import { connectPostgres } from './createConnection'
 
 dotenv.config()
 
 const start = async () => {
   await connectPostgres()
   const server = await createServer()
+
   const app = express()
 
   await server.start()
