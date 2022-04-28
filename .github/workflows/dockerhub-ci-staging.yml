@@ -53,4 +53,4 @@ jobs:
           context: ./
           file: ./Dockerfile-staging
           push: true
-          tags: getshitdonewild/getshitdone-back-staging:v1
+          tags: getshitdonewild/getshitdone-back-staging:latest
