@@ -11,7 +11,7 @@ jobs:
     steps:
       - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v3
-      - name: Create PR to PROD
+      - name: Create Pull Request to Main
         uses: peter-evans/create-pull-request@v3.10.1
         with:
           commit-message: Auto Pull Request
