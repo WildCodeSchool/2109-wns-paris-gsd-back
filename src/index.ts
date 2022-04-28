@@ -11,6 +11,9 @@ const start = async () => {
   await connectPostgres()
   const server = await createServer()
   console.log(server)
+  console.log(server)
+  console.log(server)
+  console.log(server)
   const app = express()
 
   await server.start()

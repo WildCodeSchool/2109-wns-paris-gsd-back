@@ -10,13 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - uses: actions/checkout@v3
-        with:
-          ref: main
+      # - uses: actions/checkout@v3
+      #   with:
+      #     ref: main
       - name: Create PR to PROD
-        uses: peter-evans/create-pull-request@v4
+        # uses: peter-evans/create-pull-request@v4
+        # with:
+        #   branch: staging
+       name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3.10.1
         with:
-          branch: staging
+          # token: ${{ secrets.GH_TOKEN }}
+          commit-message: Auto Pull Request
+          title: Your desired title
+          body: Auto-created Pull Request
+          branch: ${{ github.ref }} # The branch where you commit
+          base: main # Don't forget to specify the right base branch here
   # docker:
   #   runs-on: ubuntu-latest
   #   steps:
