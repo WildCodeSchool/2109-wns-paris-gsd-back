@@ -60,4 +60,4 @@ jobs:
           context: ./
           file: ./Dockerfile-staging
           push: true
-          tags: getshitdonewild/getshitdone-back-staging:${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }}
