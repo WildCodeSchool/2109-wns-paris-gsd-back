@@ -1,42 +1,8 @@
-# services:
-#   front:
-#     build:
-#       context: ../front
-#       dockerfile: ./Dockerfile-prod
-#     command: serve -s build
-#     ports:
-#       - 3000:3000
-#     depends_on:
-#       - api
-#   api:
-#     env_file:
-#     - ./.env
-#     - ./env-prod.env
-#     build:
-#       context: .
-#       dockerfile: ./Dockerfile-prod
-#     command: yarn start
-#     stdin_open: true
-#     ports:
-#       - ${PORT}:8000
-#     depends_on:
-#       - postgres
-
-#   postgres:
-#     env_file:
-#       - .env
-#       - .env-prod.env
-#     image: postgres:14.1
-#     restart: always
-#     volumes: 
-#       - ./postgres-data:/var/lib/postgresql/data
-#       # copy the sql script to create tables
-#       - ./sql/create_database.sql:/docker-entrypoint-initdb.d/create_database.sql
 version: '3'
 
 services:
   server:
-    image: getshitdonewild/getshitdone-back 
+    image: getshitdonewild/getshitdone-back:latest 
     command: sh -c "yarn build && yarn start"
     env_file:
     - ./.env
@@ -46,7 +12,7 @@ services:
     depends_on:
       - postgres
   client:
-    image: getshitdonewild/getshitdone-front
+    image: getshitdonewild/getshitdone-front:latest
     command: sh -c "yarn build"
     volumes:
       - web-client-build:/app/build
