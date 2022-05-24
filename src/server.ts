@@ -7,6 +7,7 @@ import UserResolver from './modules/User/User.resolver'
 import CommentResolver from './modules/Comment/Comment.resolver'
 import RoleResolver from './modules/Role/Role.resolver'
 import ProjectResolver from './modules/Project/Project.resolver'
+import { ResolveTime } from './middlewares/sanitize'
 
 
 dotenv.config()
@@ -14,7 +15,8 @@ dotenv.config()
 async function createServer() {
   const schema = await buildSchema({
     resolvers: [TaskResolver, CommentResolver, UserResolver, RoleResolver, ProjectResolver],
-    authChecker: customAuthChecker
+    globalMiddlewares: [ResolveTime],
+    authChecker: customAuthChecker,
   })
   // Create the GraphQL server
   const server = new ApolloServer(
@@ -22,6 +24,7 @@ async function createServer() {
       schema,
       context: ({ req }) => (
         {
+          req,
           token: req.headers.authorization,
           payload: null
         }
