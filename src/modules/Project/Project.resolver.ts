@@ -98,7 +98,6 @@ export default class ProjectResolver {
     // get the owner_id 
     const projectOwner = project.users.find((user) => user.id === context.payload.id);
 
-    console.log(projectOwner)
 
     if (!projectOwner) {
       return new GraphQLError('user has no right to update the project , y a une couille')
