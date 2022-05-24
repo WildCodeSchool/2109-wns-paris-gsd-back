@@ -241,6 +241,8 @@ export default class TaskResolver {
         { relations: ['project', 'project.users', 'project.users.role'] }
       )
 
+        // TODO make sure that the task punisher is member of the project
+
       await Task.delete(data.id)
       return taskTodelete
     } catch (error) {
