@@ -30,6 +30,7 @@
     "postgres-interval": "^4.0.0",
     "reflect-metadata": "^0.1.13",
     "remove": "^0.1.5",
+    "sanitize-html": "^2.7.0",
     "type-graphql": "^1.1.1",
     "typeorm": "^0.2.38",
     "typeorm-seeding": "^1.6.1"
@@ -43,6 +44,7 @@
     "@types/jest": "^27.0.3",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/node": "^16.11.6",
+    "@types/sanitize-html": "^2.6.2",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
     "better-sqlite3": "^7.4.5",
