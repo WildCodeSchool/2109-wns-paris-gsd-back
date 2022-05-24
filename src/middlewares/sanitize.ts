@@ -1,30 +1,20 @@
 import { MiddlewareFn } from "type-graphql";
 import { Request, Response } from 'express';
+import sanitize from "sanitize-html";
 
 export interface MyContext {
   req: Request;
   res: Response;
 }
 
-// const SanitizeMw: MiddlewareFn = ({ args }, next) => {
+export const SanitizeBody: MiddlewareFn<MyContext> = async ({context}, next) => {
     
-//     console.log(args);
-
-//     return next();
-//   };
-//   export default SanitizeMw;
-
-  export const ResolveTime: MiddlewareFn<MyContext> = async ({root, args, info, context}, next) => {
-    console.log(context.req.body.variables);
-    if (context.req.body.variables) {
-        // todo sanitize
-
+    if (context.req.body.variables.data) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const key of Object.keys(context.req.body.variables.data)) {
+            context.req.body.variables.data[key] = sanitize(context.req.body.variables.data[key])            
+        }
     }
     
-    
     return next();
-    // const start = Date.now();
-    // await next();
-    // const resolveTime = Date.now() - start;
-    // console.log(`${info.parentType.name}.${info.fieldName} [${resolveTime} ms]`);
   };

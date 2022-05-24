@@ -7,7 +7,7 @@ import UserResolver from './modules/User/User.resolver'
 import CommentResolver from './modules/Comment/Comment.resolver'
 import RoleResolver from './modules/Role/Role.resolver'
 import ProjectResolver from './modules/Project/Project.resolver'
-import { ResolveTime } from './middlewares/sanitize'
+import { SanitizeBody } from './middlewares/sanitize'
 
 
 dotenv.config()
@@ -15,7 +15,7 @@ dotenv.config()
 async function createServer() {
   const schema = await buildSchema({
     resolvers: [TaskResolver, CommentResolver, UserResolver, RoleResolver, ProjectResolver],
-    globalMiddlewares: [ResolveTime],
+    globalMiddlewares: [SanitizeBody],
     authChecker: customAuthChecker,
   })
   // Create the GraphQL server
