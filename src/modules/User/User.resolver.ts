@@ -1,8 +1,9 @@
 // eslint-disable-next-line max-classes-per-file
 import { GraphQLError } from 'graphql'
 import bcrypt from 'bcrypt'
+import { Request, Response } from 'express';
 import { sign, Secret } from 'jsonwebtoken';
-import { Arg, Query, Resolver, Authorized, Mutation, ObjectType, Field } from 'type-graphql'
+import { Arg, Query, Resolver, Authorized, Mutation, ObjectType, Field, Ctx } from 'type-graphql'
 import User from '../../entity/User'
 import Role, { RoleName } from '../../entity/Role';
 import UserInput from './UserInput/UserInput';
@@ -12,7 +13,17 @@ import LoginInput from './LoginInput/LoginInput';
 @ObjectType()
 class LoginAnswer {
   @Field()
-  token: string
+  username: string;
+  
+  @Field()
+  role: string;
+
+  @Field()
+  userId: number;
+
+  @Field()
+  isConnected: boolean; 
+  
 
 }
 
@@ -22,7 +33,8 @@ export default class UserResolver {
 
   // Handle the user login
   async loginUser(
-    @Arg('data') { username, password}: LoginInput
+    @Arg('data') { username, password}: LoginInput,
+    @Ctx() context: { req: Request, res: Response } 
   ): Promise<LoginAnswer | GraphQLError> {
     // we search the user who wants to log among the list of users
     const user = await User.findOne({ username }, {
@@ -42,7 +54,22 @@ export default class UserResolver {
       expiresIn: '24h',
     })
 
-    return { token }
+    const options = {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true, // cookie is only accessible by the server
+      // secure: process.env.NODE_ENV === 'prod', // only transferred over https
+      // sameSite: true, // only sent for requests to the same FQDN as the domain in the cookie
+    }
+
+
+    const cookie = context.res.cookie('token', token, options);
+    // console.log(context.req);
+    // console.log("coucou mon pote/n/n/n/n");
+    console.log(cookie);
+    // console.log("/n/n/n/n");
+
+
+    return { userId: user.id, username: user.username, role: user.role.label, isConnected: true}
   }
 
   @Authorized([RoleName.ADMIN, RoleName.MANAGER])
@@ -68,7 +95,7 @@ export default class UserResolver {
       const defaultRole: Role | undefined = await Role.findOne({ label: RoleName.USER })
 
       const password = bcrypt.hashSync(data.password, 10)
-
+ 
       const user = User.create({ ...data, password, role: defaultRole });
 
       await user.save();
@@ -104,4 +131,3 @@ export default class UserResolver {
     }
   }
 }
-

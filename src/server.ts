@@ -22,14 +22,13 @@ async function createServer() {
   const server = new ApolloServer(
     {
       schema,
-      context: ({ req }) => (
-        {
+      context: ({ req, res }) => ( {
           req,
-          token: req.headers.authorization,
+          res,
+          token: req.cookies.token,
           payload: null
-        }
-      )
-
+        })
+      
     })
   return server;
 }
