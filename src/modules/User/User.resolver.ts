@@ -67,7 +67,9 @@ export default class UserResolver {
     try {
       const defaultRole: Role | undefined = await Role.findOne({ label: RoleName.USER })
 
-      const user = User.create({ ...data, role: defaultRole });
+      const password = bcrypt.hashSync(data.password, 10)
+
+      const user = User.create({ ...data, password, role: defaultRole });
 
       await user.save();
       return user;
