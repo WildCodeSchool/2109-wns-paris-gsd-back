@@ -22,7 +22,10 @@ class LoginAnswer {
   userId: number;
 
   @Field()
-  isConnected: boolean; 
+  isConnected: boolean;
+
+  @Field()
+  token: string;
   
 
 }
@@ -69,7 +72,7 @@ export default class UserResolver {
     // console.log("/n/n/n/n");
 
 
-    return { userId: user.id, username: user.username, role: user.role.label, isConnected: true}
+    return { userId: user.id, username: user.username, role: user.role.label, isConnected: true, token}
   }
 
   @Authorized([RoleName.ADMIN, RoleName.MANAGER])
