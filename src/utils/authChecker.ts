@@ -15,9 +15,8 @@ const customAuthChecker: AuthChecker<any, any> = ({ context }, roles) => {
       }
 
       context.payload = decoded
-
       // comparer decoded.role et roles
-      if (roles.includes(decoded.role) || roles.length === 0) {
+      if (roles.includes(decoded.role.label) || roles.length === 0) {
         // grant access if the roles overlap
         return true;
       }
