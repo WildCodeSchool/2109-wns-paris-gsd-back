@@ -70,7 +70,7 @@ export default class TaskResolver {
       )
       // return tasks;
     } catch (error) {
-      return new GraphQLError('y a une couille dans getAllTasksByUserProject')
+      return new GraphQLError('Something errors occurs in getAllTasksByUserProject')
     }
   }
 
@@ -91,7 +91,7 @@ export default class TaskResolver {
 
       return tasks
     } catch (error) {
-      return new GraphQLError(' y a une couille dans getTasksByProjectId')
+      return new GraphQLError('Something errors occurs in getTasksByProjectId')
     }
   }
 
@@ -117,7 +117,7 @@ export default class TaskResolver {
 
       return task
     } catch (error) {
-      return new GraphQLError(' y a une couille dans getTaskById')
+      return new GraphQLError('Something errors occurs in getTaskById')
     }
   }
 
@@ -143,7 +143,7 @@ export default class TaskResolver {
 
       return task
     } catch (error) {
-      return new GraphQLError("y a une couille dans l'addTask")
+      return new GraphQLError(" Something errors occurs in addTask")
     }
   }
 
@@ -168,7 +168,7 @@ export default class TaskResolver {
 
       if (!isMember) {
         return new GraphQLError(
-          'user is not authorized to update a task, y a une couille'
+          'user is not authorized to update a task'
         )
       }
 
@@ -202,7 +202,7 @@ export default class TaskResolver {
       )
 
       if (!isUserMember) {
-        return new GraphQLError("User can't change assignee, y a une couille")
+        return new GraphQLError("User can't change assignee")
       }
 
       const newAssignee = await User.findOneOrFail(
@@ -216,7 +216,7 @@ export default class TaskResolver {
 
       if (!isAssigneeMember) {
         return new GraphQLError(
-          "User can't be assigned to this project, y a une couille"
+          "User can't be assigned to this project"
         )
       }
 
@@ -241,10 +241,17 @@ export default class TaskResolver {
         { relations: ['project', 'project.users', 'project.users.role'] }
       )
 
-        // TODO make sure that the task punisher is member of the project
+      const isUserMember = !!taskTodelete.project.users.find(
+        (user) => user.id === context.payload.id
+      )
+
+      if(!isUserMember) {
+        return new GraphQLError("No permissions to delete this task")
+      }
 
       await Task.delete(data.id)
       return taskTodelete
+      
     } catch (error) {
       return new GraphQLError('delete Error')
     }

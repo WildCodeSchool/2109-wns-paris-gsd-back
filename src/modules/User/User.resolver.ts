@@ -83,7 +83,7 @@ export default class UserResolver {
 
     } catch (error) {
 
-      return new GraphQLError("y a une couille de userS")
+      return new GraphQLError("Something errors occurs in getUsers")
 
     }
   }
@@ -102,7 +102,7 @@ export default class UserResolver {
       return user;
 
     } catch (error) {
-      return new GraphQLError("y a une couille de Signup")
+      return new GraphQLError("Something errors occurs in addUsers")
     }
   }
 
@@ -127,7 +127,7 @@ export default class UserResolver {
       return user;
 
     } catch (error) {
-      return new GraphQLError("y a une couille dans l'update user Role")
+      return new GraphQLError("Something errors occurs in update user Role")
     }
   }
 }
