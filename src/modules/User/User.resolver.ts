@@ -16,7 +16,7 @@ class LoginAnswer {
   username: string;
   
   @Field()
-  role: string;
+  role: Role;
 
   @Field()
   userId: number;
@@ -53,7 +53,7 @@ export default class UserResolver {
       return new GraphQLError('Wrong password')
     }
 
-    const token = sign({ id: user.id, username: user.username, role: user.role.label }, process.env.JSON_TOKEN_KEY as Secret, {
+    const token = sign({ id: user.id, username: user.username, role: user.role }, process.env.JSON_TOKEN_KEY as Secret, {
       expiresIn: '24h',
     })
 
@@ -72,7 +72,7 @@ export default class UserResolver {
     // console.log("/n/n/n/n");
 
 
-    return { userId: user.id, username: user.username, role: user.role.label, isConnected: true, token}
+    return { userId: user.id, username: user.username, role: user.role, isConnected: true, token}
   }
 
   @Authorized([RoleName.ADMIN, RoleName.MANAGER])
