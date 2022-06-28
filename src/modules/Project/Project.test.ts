@@ -273,7 +273,6 @@ describe('Project Resolver', () => {
     });
   });
 
-  // TODO add new member to project
   describe('Add a member to a project', () => {
     it('should retrieve a message for added member successfully', async () => {
       const project = Project.create({
@@ -468,7 +467,6 @@ describe('Project Resolver', () => {
     });
   });
 
-  // TODO getprojectbyid
   describe('Get a project with id params', () => {
     it('should retrieve a data of project by id', async () => {
 
