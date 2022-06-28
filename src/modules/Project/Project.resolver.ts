@@ -67,15 +67,11 @@ export default class ProjectResolver {
   async addProject(
     @Arg('data') { ...projectData }: ProjectInput,
     @Ctx() context: { payload: JwtPayload })
-    : Promise<Project | GraphQLError> {
-    // get user to see if he has sufficient role to create
-    const user = await User.findOne({ id: context.payload.id }, { relations: ['role'] });
+    : Promise<Project> {
 
-    if (user?.role.label !== RoleName.MANAGER) {
-      return new GraphQLError("The user can't create a project");
-    }
+    const user = await User.findOneOrFail({ id: context.payload.id }, { relations: ['role'] });
 
-    const project = Project.create<Project>({ ...projectData, users: [user] });
+    const project = Project.create({ ...projectData, users: [user] });
 
     await project.save();
 
