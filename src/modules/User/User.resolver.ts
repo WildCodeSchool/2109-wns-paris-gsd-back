@@ -14,7 +14,7 @@ import LoginInput from './LoginInput/LoginInput';
 class LoginAnswer {
   @Field()
   username: string;
-  
+
   @Field()
   role: Role;
 
@@ -26,24 +26,20 @@ class LoginAnswer {
 
   @Field()
   token: string;
-  
-
 }
 
 @Resolver(User)
 export default class UserResolver {
   @Query(() => LoginAnswer)
-
-  // Handle the user login
   async loginUser(
-    @Arg('data') { username, password}: LoginInput,
-    @Ctx() context: { req: Request, res: Response } 
+    @Arg('data') { username, password }: LoginInput,
+    @Ctx() context: { req: Request, res: Response }
   ): Promise<LoginAnswer | GraphQLError> {
     // we search the user who wants to log among the list of users
     const user = await User.findOne({ username }, {
       relations: ["role"]
     })
-    // if user
+
     if (!user) {
       return new GraphQLError('Something went wrong')
     }
@@ -61,19 +57,13 @@ export default class UserResolver {
       maxAge: 1000 * 60 * 60 * 24,
       httpOnly: true, // cookie is only accessible by the server
       secure: true,
-      // secure: process.env.NODE_ENV === 'prod', // only transferred over https
+
       sameSite: "none" as "none", // only sent for requests to the same FQDN as the domain in the cookie
     }
 
+    context.res.cookie('token', token, options);
 
-    const cookie = context.res.cookie('token', token, options);
-    // console.log(context.req);
-    // console.log("coucou mon pote/n/n/n/n");
-    console.log(cookie);
-    // console.log("/n/n/n/n");
-
-
-    return { userId: user.id, username: user.username, role: user.role, isConnected: true, token}
+    return { userId: user.id, username: user.username, role: user.role, isConnected: true, token }
   }
 
   @Authorized([RoleName.ADMIN, RoleName.MANAGER])
@@ -99,7 +89,7 @@ export default class UserResolver {
       const defaultRole: Role | undefined = await Role.findOne({ label: RoleName.USER })
 
       const password = bcrypt.hashSync(data.password, 10)
- 
+
       const user = User.create({ ...data, password, role: defaultRole });
 
       await user.save();
