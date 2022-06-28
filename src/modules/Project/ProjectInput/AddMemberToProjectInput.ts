@@ -7,7 +7,4 @@ export default class AddMemberToProjectInput {
 
   @Field()
   memberId: number;
-
-  @Field()
-  managerId: number;
 }

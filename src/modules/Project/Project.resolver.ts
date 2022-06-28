@@ -29,7 +29,7 @@ export default class ProjectResolver {
       const projects: Project[] = await Project.find({ relations: ['tasks', 'tasks.taskCreator', 'tasks.taskCreator.role', 'users', 'users.role'] })
       return projects
     } catch (error) {
-      return new GraphQLError('Y a une couille dans le project')
+      return new GraphQLError('Something wrong in getProjects')
     }
   }
 
@@ -44,21 +44,21 @@ export default class ProjectResolver {
       const project = await Project.findOne({ id }, { relations: ['users', 'users.role', 'tasks', 'tasks.taskCreator', 'tasks.taskCreator.role'] })
 
       if (!project) {
-        return new GraphQLError('Y a une couille dans le project qui existe pas')
+        return new GraphQLError('Something wrong in getProjectById')
       }
 
-      const isUserMember = !project.users.find(
+      const isUserMember = !!project.users.find(
         (user) => user.id === context.payload.id || context.payload.role === RoleName.ADMIN
       )
 
       if (!isUserMember) {
-        return new GraphQLError("User can't change assignee, y a une couille")
+        return new GraphQLError("User is not right access")
       }
 
       return project;
 
     } catch (error) {
-      return new GraphQLError('Y a une couille dans le project')
+      return new GraphQLError('Something wrong in getProjects')
     }
   }
 
@@ -67,15 +67,11 @@ export default class ProjectResolver {
   async addProject(
     @Arg('data') { ...projectData }: ProjectInput,
     @Ctx() context: { payload: JwtPayload })
-    : Promise<Project | GraphQLError> {
-    // get user to see if he has sufficient role to create
-    const user = await User.findOne({ id: context.payload.id }, { relations: ['role'] });
+    : Promise<Project> {
 
-    if (user?.role.label !== RoleName.MANAGER) {
-      return new GraphQLError("The user can't create a project");
-    }
+    const user = await User.findOneOrFail({ id: context.payload.id }, { relations: ['role'] });
 
-    const project = Project.create<Project>({ ...projectData, users: [user] });
+    const project = Project.create({ ...projectData, users: [user] });
 
     await project.save();
 
@@ -92,7 +88,7 @@ export default class ProjectResolver {
     // get the project
     const project = await Project.findOne({ id: project_id, }, { relations: ['users', 'users.role'] });
     if (!project) {
-      return new GraphQLError('Project not found, y a une couille')
+      return new GraphQLError('Project not found')
     }
 
     // get the owner_id 
@@ -100,7 +96,7 @@ export default class ProjectResolver {
 
 
     if (!projectOwner) {
-      return new GraphQLError('user has no right to update the project , y a une couille')
+      return new GraphQLError('user has no right to update the project')
 
     }
 
@@ -126,7 +122,7 @@ export default class ProjectResolver {
       const isManager = !!project.users.find(manager => manager.id === context.payload.id || context.payload.role === RoleName.ADMIN)
 
       if (!isManager) {
-        return new GraphQLError('You don\'t have permissions to access this one, there is a testicle')
+        return new GraphQLError('You don\'t have permissions to access this one')
       }
 
       const member = await User.findOneOrFail({ id: memberId }, { relations: ['role'] })
@@ -134,7 +130,7 @@ export default class ProjectResolver {
       const isDeveloper = member.role.label === RoleName.DEVELOPER
 
       if (!isDeveloper) {
-        return new GraphQLError('The user isn\'t the developer you can\'t added this one, there is a testicle')
+        return new GraphQLError('The user isn\'t the developer you can\'t added this one')
       }
 
       project.users.push(member)
@@ -146,7 +142,7 @@ export default class ProjectResolver {
         message: "Member added successfully"
       }
     } catch (error) {
-      return new GraphQLError('Y a une couille dans l\'addMemberToProject')
+      return new GraphQLError('Something wrong in addMemberToProject')
     }
 
 

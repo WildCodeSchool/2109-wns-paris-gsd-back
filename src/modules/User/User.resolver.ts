@@ -1,8 +1,9 @@
 // eslint-disable-next-line max-classes-per-file
 import { GraphQLError } from 'graphql'
 import bcrypt from 'bcrypt'
+import { Request, Response } from 'express';
 import { sign, Secret } from 'jsonwebtoken';
-import { Arg, Query, Resolver, Authorized, Mutation, ObjectType, Field } from 'type-graphql'
+import { Arg, Query, Resolver, Authorized, Mutation, ObjectType, Field, Ctx } from 'type-graphql'
 import User from '../../entity/User'
 import Role, { RoleName } from '../../entity/Role';
 import UserInput from './UserInput/UserInput';
@@ -12,23 +13,33 @@ import LoginInput from './LoginInput/LoginInput';
 @ObjectType()
 class LoginAnswer {
   @Field()
-  token: string
+  username: string;
 
+  @Field()
+  role: Role;
+
+  @Field()
+  userId: number;
+
+  @Field()
+  isConnected: boolean;
+
+  @Field()
+  token: string;
 }
 
 @Resolver(User)
 export default class UserResolver {
   @Query(() => LoginAnswer)
-
-  // Handle the user login
   async loginUser(
-    @Arg('data') { username, password}: LoginInput
+    @Arg('data') { username, password }: LoginInput,
+    @Ctx() context: { req: Request, res: Response }
   ): Promise<LoginAnswer | GraphQLError> {
     // we search the user who wants to log among the list of users
     const user = await User.findOne({ username }, {
       relations: ["role"]
     })
-    // if user
+
     if (!user) {
       return new GraphQLError('Something went wrong')
     }
@@ -38,11 +49,21 @@ export default class UserResolver {
       return new GraphQLError('Wrong password')
     }
 
-    const token = sign({ id: user.id, username: user.username, role: user.role.label }, process.env.JSON_TOKEN_KEY as Secret, {
+    const token = sign({ id: user.id, username: user.username, role: user.role }, process.env.JSON_TOKEN_KEY as Secret, {
       expiresIn: '24h',
     })
 
-    return { token }
+    const options = {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true, // cookie is only accessible by the server
+      secure: true,
+
+      sameSite: "none" as "none", // only sent for requests to the same FQDN as the domain in the cookie
+    }
+
+    context.res.cookie('token', token, options);
+
+    return { userId: user.id, username: user.username, role: user.role, isConnected: true, token }
   }
 
   @Authorized([RoleName.ADMIN, RoleName.MANAGER])
@@ -56,7 +77,7 @@ export default class UserResolver {
 
     } catch (error) {
 
-      return new GraphQLError("y a une couille de userS")
+      return new GraphQLError("Something errors occurs in getUsers")
 
     }
   }
@@ -67,13 +88,15 @@ export default class UserResolver {
     try {
       const defaultRole: Role | undefined = await Role.findOne({ label: RoleName.USER })
 
-      const user = User.create({ ...data, role: defaultRole });
+      const password = bcrypt.hashSync(data.password, 10)
+
+      const user = User.create({ ...data, password, role: defaultRole });
 
       await user.save();
       return user;
 
     } catch (error) {
-      return new GraphQLError("y a une couille de Signup")
+      return new GraphQLError("Something errors occurs in addUsers")
     }
   }
 
@@ -98,8 +121,7 @@ export default class UserResolver {
       return user;
 
     } catch (error) {
-      return new GraphQLError("y a une couille dans l'update user Role")
+      return new GraphQLError("Something errors occurs in update user Role")
     }
   }
 }
-

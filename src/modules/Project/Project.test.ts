@@ -12,11 +12,11 @@ beforeAll(async () => {
   server = await createServer()
 
   user = User.create({
-    firstName: "toto",
-    lastName: "tata",
-    username: "tatadetoto",
-    email: "tataManager@toto.td",
-    password: "lannister",
+    firstName: "UserTest",
+    lastName: "lastNameTest",
+    username: "testUser",
+    email: "testUserr@test.com",
+    password: "?Axerty123",
   })
   await user.save();
 
@@ -38,15 +38,14 @@ describe('Project Resolver', () => {
 
       await user.save()
 
-      const payload = { id: user.id, username: user.username, role: user.role.label }
+      const payload = { id: user.id, username: user.username, role: user.role }
 
       const token = mockToken(payload)
 
-
       const { data, errors } = await server.executeOperation({
-        query: getProjectsQuery,
+        query: getProjectsQuery
       },
-        { req: mockRequest(token) } as ExpressContext
+        { req: { ...mockRequest(token), body: { variables: {} } } } as ExpressContext
       )
 
       expect(!errors).toBeTruthy()
@@ -80,7 +79,7 @@ describe('Project Resolver', () => {
 
       await user.save()
 
-      const payload = { id: user.id, username: user.username, role: user.role.label }
+      const payload = { id: user.id, username: user.username, role: user.role }
 
       const token = mockToken(payload)
 
@@ -88,7 +87,7 @@ describe('Project Resolver', () => {
       const { data, errors } = await server.executeOperation({
         query: getProjectsQuery,
       },
-        { req: mockRequest(token) } as ExpressContext
+        { req: { ...mockRequest(token), body: { variables: {} } } } as ExpressContext
       )
 
       expect(!errors).toBeTruthy()
@@ -127,7 +126,7 @@ describe('Project Resolver', () => {
 
       await user.save()
 
-      const payload = { id: user.id, username: user.username, role: user.role.label }
+      const payload = { id: user.id, username: user.username, role: user.role }
 
       const token = mockToken(payload)
 
@@ -135,7 +134,7 @@ describe('Project Resolver', () => {
         query: addProjectMutation,
         variables
       },
-        { req: mockRequest(token) } as ExpressContext
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
       )
 
       expect(!errors).toBeTruthy()
@@ -160,14 +159,13 @@ describe('Project Resolver', () => {
         query: addProjectMutation,
         variables
       },
-        { req: mockRequest(token) } as ExpressContext
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
       )
-
       expect(errors).toBeTruthy()
+      expect(errors![0].message).toEqual("Access denied! You don't have permission for this action!")
     });
   });
 
-  // TODO update project
   describe('Update a project', () => {
     it('should retrieve a message for updated successfully', async () => {
       const project = Project.create({
@@ -177,9 +175,9 @@ describe('Project Resolver', () => {
 
       await project.save()
 
-      const roleDeveloper = await Role.findOne({ label: RoleName.ADMIN })
+      const roleManager = await Role.findOne({ label: RoleName.MANAGER })
 
-      user.role = roleDeveloper as Role;
+      user.role = roleManager as Role;
 
       await user.save()
 
@@ -196,7 +194,7 @@ describe('Project Resolver', () => {
           }
         }
       `
-      const payload = { id: user.id, username: user.username, role: user.role.label }
+      const payload = { id: user.id, username: user.username, role: user.role }
 
       const token = mockToken(payload)
 
@@ -205,7 +203,7 @@ describe('Project Resolver', () => {
       const variables = {
         data: {
           project_id: id,
-          name: 'Un nouveau nom de proyait',
+          name: 'Un nouveau nom de projet',
           ending_time: new Date().toISOString(),
         }
       }
@@ -214,7 +212,7 @@ describe('Project Resolver', () => {
         query: updateProjectMutation,
         variables
       },
-        { req: mockRequest(token) } as ExpressContext
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
       )
 
       expect(!errors).toBeTruthy()
@@ -224,22 +222,249 @@ describe('Project Resolver', () => {
     });
 
     it('should throw an error when a user attempts to updated a project where isn\'t a project Owner', async () => {
+      const project = Project.create({
+        name: "Project test",
+        ending_time: new Date().toISOString()
+      })
 
+      await project.save()
+
+      const roleDeveloper = await Role.findOne({ label: RoleName.ADMIN })
+
+      user.role = roleDeveloper as Role;
+
+      await user.save()
+
+      const pushMemberInProject = await Project.findOne({ id: project.id })
+
+      pushMemberInProject!.users = []
+
+      await pushMemberInProject!.save()
+
+      const updateProjectMutation = gql`
+        mutation Mutation($data: ProjectUpdateInput!) {
+          updateProject(data: $data) {
+            message
+          }
+        }
+      `
+      const payload = { id: user.id, username: user.username, role: user.role }
+
+      const token = mockToken(payload)
+
+      const { id } = await Project.findOneOrFail({ id: project.id })
+
+      const variables = {
+        data: {
+          project_id: id,
+          name: 'Un nouveau nom de projet',
+          ending_time: new Date().toISOString(),
+        }
+      }
+
+      const { errors } = await server.executeOperation({
+        query: updateProjectMutation,
+        variables
+      },
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
+      )
+      expect(errors).toBeTruthy()
+      expect(errors![0].message).toEqual('user has no right to update the project')
     });
   });
 
   // TODO add new member to project
   describe('Add a member to a project', () => {
-    it('should retrieve a message for added member successfully', () => {
+    it('should retrieve a message for added member successfully', async () => {
+      const project = Project.create({
+        name: "Project test",
+        ending_time: new Date().toISOString()
+      })
 
+      await project.save()
+
+      const roleManager = await Role.findOne({ label: RoleName.MANAGER })
+      const roleDeveloper = await Role.findOne({ label: RoleName.DEVELOPER })
+
+      user.role = roleManager as Role;
+
+      await user.save()
+
+      const pushMemberInProject = await Project.findOne({ id: project.id })
+
+      pushMemberInProject!.users = [user]
+
+      await pushMemberInProject!.save()
+
+      const member = User.create({
+        username: "member",
+        firstName: "member",
+        lastName: "member",
+        email: "member@member.fr",
+        password: "azerty123"
+      })
+      await member.save()
+
+      member.role = roleDeveloper as Role
+      await member.save()
+
+      const addMemberToProjectMutation = gql`
+        mutation Mutation($data: AddMemberToProjectInput!) {
+          addMemberToProject(data: $data) {
+            message
+          }
+        }
+      `
+      const payload = { id: user.id, username: user.username, role: user.role }
+
+      const token = mockToken(payload)
+
+      const { id: projectId } = await Project.findOneOrFail({ id: project.id })
+      const { id: memberId } = await User.findOneOrFail({ id: member.id })
+
+      const variables = {
+        data: {
+          projectId,
+          memberId,
+        }
+      }
+
+      const { data, errors } = await server.executeOperation({
+        query: addMemberToProjectMutation,
+        variables
+      },
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
+      )
+
+      expect(!errors).toBeTruthy()
+      expect(data!.addMemberToProject.message).toEqual("Member added successfully")
     });
 
     it('should throw an error when a user attempts to add member where isn\'t manager of this', async () => {
+      const project = Project.create({
+        name: "Project test",
+        ending_time: new Date().toISOString()
+      })
 
+      await project.save()
+
+      const roleManager = await Role.findOne({ label: RoleName.MANAGER })
+      const roleDeveloper = await Role.findOne({ label: RoleName.DEVELOPER })
+
+      user.role = roleManager as Role;
+
+      await user.save()
+
+      const pushMemberInProject = await Project.findOne({ id: project.id })
+
+      pushMemberInProject!.users = []
+
+      await pushMemberInProject!.save()
+
+      const member = User.create({
+        username: "member",
+        firstName: "member",
+        lastName: "member",
+        email: "member@member.fr",
+        password: "azerty123"
+      })
+      await member.save()
+
+      member.role = roleDeveloper as Role
+      await member.save()
+
+      const addMemberToProjectMutation = gql`
+        mutation Mutation($data: AddMemberToProjectInput!) {
+          addMemberToProject(data: $data) {
+            message
+          }
+        }
+      `
+      const payload = { id: user.id, username: user.username, role: user.role }
+
+      const token = mockToken(payload)
+
+      const { id: projectId } = await Project.findOneOrFail({ id: project.id })
+      const { id: memberId } = await User.findOneOrFail({ id: member.id })
+
+      const variables = {
+        data: {
+          projectId,
+          memberId,
+        }
+      }
+
+      const { errors } = await server.executeOperation({
+        query: addMemberToProjectMutation,
+        variables
+      },
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
+      )
+
+      expect(errors).toBeTruthy()
+      expect(errors![0].message).toEqual('You don\'t have permissions to access this one')
     });
 
     it('should throw an error when a manager attempts to add member where isn\'t a developer', async () => {
+      const project = Project.create({
+        name: "Project test",
+        ending_time: new Date().toISOString()
+      })
 
+      await project.save()
+
+      const roleManager = await Role.findOne({ label: RoleName.MANAGER })
+
+      user.role = roleManager as Role;
+
+      await user.save()
+
+      const pushMemberInProject = await Project.findOne({ id: project.id })
+
+      pushMemberInProject!.users = [user]
+
+      await pushMemberInProject!.save()
+
+      const member = User.create({
+        username: "member",
+        firstName: "member",
+        lastName: "member",
+        email: "member@member.fr",
+        password: "azerty123",
+        role: await Role.findOne({ label: RoleName.USER })
+      })
+      await member.save()
+
+      const addMemberToProjectMutation = gql`
+        mutation Mutation($data: AddMemberToProjectInput!) {
+          addMemberToProject(data: $data) {
+            message
+          }
+        }
+      `
+      const payload = { id: user.id, username: user.username, role: user.role }
+
+      const token = mockToken(payload)
+
+      const { id: projectId } = await Project.findOneOrFail({ id: project.id })
+      const { id: memberId } = await User.findOneOrFail({ id: member.id })
+
+      const variables = {
+        data: {
+          projectId,
+          memberId,
+        }
+      }
+
+      const { errors } = await server.executeOperation({
+        query: addMemberToProjectMutation,
+        variables
+      },
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
+      )
+
+      expect(errors).toBeTruthy()
+      expect(errors![0].message).toEqual('The user isn\'t the developer you can\'t added this one')
     });
   });
 
@@ -268,7 +493,13 @@ describe('Project Resolver', () => {
 
       await user.save()
 
-      const payload = { id: user.id, username: user.username, role: user.role.label }
+      const pushMemberInProject = await Project.findOne({ id: project.id })
+
+      pushMemberInProject!.users = [user]
+
+      await pushMemberInProject!.save()
+
+      const payload = { id: user.id, username: user.username, role: user.role }
 
       const token = mockToken(payload)
 
@@ -282,13 +513,58 @@ describe('Project Resolver', () => {
         query: getProjectByIdQuery,
         variables
       },
-        { req: mockRequest(token) } as ExpressContext
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
       )
 
       expect(!errors).toBeTruthy()
 
       const expectedResult = await Project.find()
       expect(data!.getProjectById.name).toEqual(expectedResult[0].name)
+    });
+
+    it('should retrieve an error when the context user is no right access', async () => {
+
+      const project = Project.create({
+        name: "Project test",
+        ending_time: new Date().toISOString()
+      })
+
+      await project.save()
+
+      const getProjectByIdQuery = gql`
+      query GetProjectById($getProjectByIdId: Float!) {
+        getProjectById(id: $getProjectByIdId) {
+          id
+          name
+        }
+      }
+      `
+      const roleAdmin = await Role.findOne({ label: RoleName.ADMIN })
+
+      user.role = roleAdmin as Role;
+
+      await user.save()
+
+      const payload = { id: user.id, username: user.username, role: user.role }
+
+      const token = mockToken(payload)
+
+      const { id } = await Project.findOneOrFail({ id: project.id })
+
+      const variables = {
+        getProjectByIdId: id
+      }
+
+      const { errors } = await server.executeOperation({
+        query: getProjectByIdQuery,
+        variables
+      },
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
+      )
+
+      expect(errors).toBeTruthy()
+      expect(errors![0].message).toEqual('User is not right access')
+
     });
   });
 });
