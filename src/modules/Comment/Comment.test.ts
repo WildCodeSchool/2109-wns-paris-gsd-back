@@ -42,7 +42,7 @@ describe('Comment Resolver', () => {
         query: addCommentMutation,
         variables
       },
-        { req: mockRequest() } as ExpressContext
+        { req: { ...mockRequest(), body: { variables } } } as ExpressContext
       )
 
 

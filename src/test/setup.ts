@@ -7,8 +7,8 @@ import Role, { RoleName } from '../entity/Role';
 
 export const mockRequest = (token: string = '') => (
   {
-    headers: {
-      authorization: token,
+    cookies: {
+      token
     }
   }
 )
@@ -47,9 +47,5 @@ beforeEach(async () => {
   await Role.create({ label: RoleName.MANAGER }).save();
   await Role.create({ label: RoleName.DEVELOPER }).save();
   await Role.create({ label: RoleName.USER }).save();
-  // 2-3 projets ?
-  // 1-2 taches 
-  // utilisateur
-  // comments
 });
 
