@@ -144,7 +144,7 @@ describe('Task resolver', () => {
       },
         { req: { ...mockRequest(token), body: { variables: {} } } } as ExpressContext
       )
-      expect(!errors).toBeTruthy()
+      expect(errors).toBeTruthy()
       expect(errors![0].message).toEqual('Access denied! You don\'t have permission for this action!')
     });
 
