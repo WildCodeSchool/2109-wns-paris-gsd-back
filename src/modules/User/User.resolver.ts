@@ -60,8 +60,9 @@ export default class UserResolver {
     const options = {
       maxAge: 1000 * 60 * 60 * 24,
       httpOnly: true, // cookie is only accessible by the server
+      secure: true,
       // secure: process.env.NODE_ENV === 'prod', // only transferred over https
-      // sameSite: true, // only sent for requests to the same FQDN as the domain in the cookie
+      sameSite: "none" as "none", // only sent for requests to the same FQDN as the domain in the cookie
     }
 
 
