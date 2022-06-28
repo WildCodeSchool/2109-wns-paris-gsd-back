@@ -47,12 +47,12 @@ export default class ProjectResolver {
         return new GraphQLError('Something wrong in getProjectById')
       }
 
-      const isUserMember = !project.users.find(
+      const isUserMember = !!project.users.find(
         (user) => user.id === context.payload.id || context.payload.role === RoleName.ADMIN
       )
 
       if (!isUserMember) {
-        return new GraphQLError("User can't change assignee")
+        return new GraphQLError("User is not right access")
       }
 
       return project;
