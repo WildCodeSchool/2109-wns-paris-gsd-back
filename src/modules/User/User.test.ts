@@ -13,11 +13,11 @@ beforeAll(async () => {
   server = await createServer()
 })
 
-describe('login resolver', () => {
+describe('Login resolver', () => {
   describe('Add User mutation', () => {
     it('Create a user and retrieve a user created', async () => {
       const addUserMutation = gql`
-      mutation Mutation($data: UserInput!) {
+      mutation AddUser($data: UserInput!) {
         addUser(data: $data) {
           firstName
           lastName
@@ -29,11 +29,11 @@ describe('login resolver', () => {
 
       const variables = {
         data: {
-          firstName: "toto",
-          lastName: "tata",
-          username: "tatadetoto",
-          email: "tata@toto.td",
-          password: "lannister"
+          firstName: "User",
+          lastName: "New",
+          username: "newUser2109",
+          email: "newUser@test.com",
+          password: "%Asert4785q"
         }
       }
 
@@ -42,12 +42,12 @@ describe('login resolver', () => {
           query: addUserMutation,
           variables,
         },
-        { req: mockRequest() } as ExpressContext
+        { req: { ...mockRequest(), body: { variables } } } as ExpressContext
       )
 
       expect(!errors).toBeTruthy()
 
-      const expectedResult = await User.findOne<User>({ email: 'tata@toto.td' })
+      const expectedResult = await User.findOne<User>({ email: 'newUser@test.com' })
 
       expect(data!.addUser).toEqual(expect.objectContaining({
         firstName: expectedResult!.firstName,
@@ -95,9 +95,6 @@ describe('login resolver', () => {
       const userCreated3 = User.create(users[2])
       await userCreated3.save();
 
-      /**
-       * Here we have to change our test to implement a JWT and verify our implementation
-       */
       const adminRole = await Role.findOne({ label: RoleName.ADMIN })
       const adminUser = User.create({
         firstName: "john",
@@ -109,7 +106,7 @@ describe('login resolver', () => {
       });
 
       await adminUser.save();
-      const payload = { id: adminUser.id, username: adminUser.username, role: adminUser.role.label }
+      const payload = { id: adminUser.id, username: adminUser.username, role: adminUser.role }
 
       const token = mockToken(payload)
 
@@ -124,7 +121,7 @@ describe('login resolver', () => {
       const { data, errors } = await server.executeOperation({
         query: getUsersQuery,
       },
-        { req: mockRequest(token) } as ExpressContext
+        { req: { ...mockRequest(token), body: { variables: {} } } } as ExpressContext
       )
 
       expect(!errors).toBeTruthy()
@@ -191,17 +188,16 @@ describe('login resolver', () => {
         }
       }
 
-      const payload = { id: adminUser.id, username: adminUser.username, role: adminUser.role.label }
+      const payload = { id: adminUser.id, username: adminUser.username, role: adminUser.role }
 
       const token = mockToken(payload)
 
-      // !recuperer ce user directement via typeORM
       const { data, errors } = await server.executeOperation(
         {
           query: updateRoleMutation,
           variables
         },
-        { req: mockRequest(token) } as ExpressContext
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
       )
 
       expect(!errors).toBeTruthy()
@@ -218,7 +214,7 @@ describe('login resolver', () => {
       await User.delete({ id: regularUser.id });
     })
 
-    it('should throw if you are admin', async () => {
+    it('should throw if you aren\'t admin role', async () => {
       const developerRole = await Role.findOne({ label: RoleName.DEVELOPER })
 
       const developerUser = User.create({ ...userInfos[0], role: developerRole });
@@ -227,10 +223,9 @@ describe('login resolver', () => {
       const regularUser = User.create({ ...userInfos[1] });
       await regularUser.save();
 
-      const payload = { id: developerUser.id, username: developerUser.username, role: developerUser.role.label }
+      const payload = { id: developerUser.id, username: developerUser.username, role: developerUser.role }
 
       const token = mockToken(payload)
-
 
       const variables = {
         data: {
@@ -238,15 +233,42 @@ describe('login resolver', () => {
           roleId: developerRole!.id,
         }
       }
-      // !recuperer ce user directement via typeORM
+
       const { errors } = await server.executeOperation({
         query: updateRoleMutation,
         variables,
       },
-        { req: mockRequest(token) } as ExpressContext
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
       )
-
       expect(errors).toBeTruthy()
+      expect(errors![0].message).toEqual('Access denied! You don\'t have permission for this action!')
+    })
+
+    it('should throw an error if no user founded', async () => {
+      const adminRole = await Role.findOne({ label: RoleName.ADMIN })
+
+      const adminUser = User.create({ ...userInfos[0], role: adminRole });
+      await adminUser.save();
+
+      const payload = { id: adminUser.id, username: adminUser.username, role: adminUser.role }
+
+      const token = mockToken(payload)
+
+      const variables = {
+        data: {
+          userId: 2,
+          roleId: adminUser!.id,
+        }
+      }
+
+      const { errors } = await server.executeOperation({
+        query: updateRoleMutation,
+        variables,
+      },
+        { req: { ...mockRequest(token), body: { variables } } } as ExpressContext
+      )
+      expect(errors).toBeTruthy()
+      expect(errors![0].message).toEqual('no user found')
     })
   })
 
