@@ -19,8 +19,5 @@ export default class TaskInput {
   ending_time: Date
 
   @Field(() => ID)
-  creatorId: number
-
-  @Field(() => ID)
   projectId: number
 }
