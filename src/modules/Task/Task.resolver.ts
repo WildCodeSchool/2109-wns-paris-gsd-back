@@ -57,7 +57,7 @@ export default class TaskResolver {
   @Authorized([RoleName.ADMIN, RoleName.MANAGER, RoleName.DEVELOPER])
   @Query(() => [Task])
   async getAllTasksByUserProject(
-    @Ctx() context:  {payload: JwtPayload},
+    @Ctx() context: { payload: JwtPayload },
   ): Promise<Task[] | GraphQLError> {
     try {
       const tasks = await Task.find({
@@ -127,10 +127,11 @@ export default class TaskResolver {
   @Authorized([RoleName.ADMIN, RoleName.MANAGER])
   @Mutation(() => Task)
   async addTask(
-    @Arg('data') { creatorId, projectId, ...taskData }: TaskInput
+    @Arg('data') { projectId, ...taskData }: TaskInput,
+    @Ctx() context: { payload: JwtPayload }
   ): Promise<Task | GraphQLError> {
     try {
-      const user = await User.findOneOrFail({ id: creatorId })
+      const user = await User.findOneOrFail({ id: context.payload.id })
 
       const project = await Project.findOneOrFail(
         { id: projectId },
@@ -151,8 +152,8 @@ export default class TaskResolver {
   @Mutation(() => Task)
   async updateTaskbyId(
     @Arg('data') data: UpdateDeleteTaskInput,
-    @Ctx() context:  {payload: JwtPayload},
-  
+    @Ctx() context: { payload: JwtPayload },
+
   ): Promise<UpdateTaskResponse | GraphQLError> {
     try {
       const taskToUpdate = await Task.findOneOrFail(
@@ -186,7 +187,7 @@ export default class TaskResolver {
   @Authorized([RoleName.ADMIN, RoleName.MANAGER])
   @Mutation(() => Task)
   async changeAssignee(
-    @Ctx() context:  {payload: JwtPayload},
+    @Ctx() context: { payload: JwtPayload },
     @Arg('data') data: ChangeAssigneeInput
 
   ): Promise<Task | GraphQLError> {
@@ -232,7 +233,7 @@ export default class TaskResolver {
   @Authorized([RoleName.ADMIN, RoleName.MANAGER])
   @Mutation(() => Task)
   async deleteTaskbyId(
-    @Ctx() context:  {payload: JwtPayload},
+    @Ctx() context: { payload: JwtPayload },
     @Arg('data') data: UpdateDeleteTaskInput
   ): Promise<Task | GraphQLError> {
     try {
@@ -245,13 +246,13 @@ export default class TaskResolver {
         (user) => user.id === context.payload.id
       )
 
-      if(!isUserMember) {
+      if (!isUserMember) {
         return new GraphQLError("No permissions to delete this task")
       }
 
       await Task.delete(data.id)
       return taskTodelete
-      
+
     } catch (error) {
       return new GraphQLError('delete Error')
     }
