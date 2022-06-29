@@ -150,7 +150,7 @@ const seedingDB = async () => {
             if (project.users.length)
               t.taskCreator = project.users[Math.floor(Math.random() * project.users.length)];
             t.ending_time = new Date();
-            t.advancement = Math.floor(Math.random() * 100)
+            t.advancement = 30
 
             await connection.manager.save(t);
 

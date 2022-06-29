@@ -151,7 +151,7 @@ describe('Project Resolver', () => {
 
       await user.save()
 
-      const payload = { id: user.id, username: user.username, role: user.role.label }
+      const payload = { id: user.id, username: user.username, role: user.role }
 
       const token = mockToken(payload)
 
