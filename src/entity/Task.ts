@@ -61,7 +61,7 @@ class Task extends BaseEntity {
     const end: Date = new Date(task.ending_time)
 
     const estimee = Math.round(
-      (end.getTime() - begin.getTime()) / 1000 / 3600 / 24
+      (end.getTime() - begin.getTime()) / 1000 / 3600
     )
 
     return estimee
