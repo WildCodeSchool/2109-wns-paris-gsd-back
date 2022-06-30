@@ -145,11 +145,13 @@ const seedingDB = async () => {
             t.description = `task description ${index}`;
             t.project = project;
             if (index === 0) {
+              t.advancement = 100
               t.status = StatusName.DONE;
             }
             if (project.users.length)
               t.taskCreator = project.users[Math.floor(Math.random() * project.users.length)];
             t.ending_time = new Date();
+            t.status = StatusName.IN_PROGRESS;
             t.advancement = 30
 
             await connection.manager.save(t);
