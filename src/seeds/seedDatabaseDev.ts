@@ -128,7 +128,7 @@ const seedingDB = async () => {
         const p = new Project();
         p.name = project.title;
         p.ending_time = new Date();
-        p.users = project !== projectName[2] ? users : [];
+        p.users = project !== projectName[2] ? users : [users[0], users[1]];
         await connection.manager.save(p);
         console.log(`Saved a new project with named: ${p.name}`);
       }
