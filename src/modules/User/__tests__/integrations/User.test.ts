@@ -1,10 +1,10 @@
 import { ApolloServer, ExpressContext, gql } from 'apollo-server-express'
 
-import { mockRequest, mockToken } from '../../test/setup'
-import createServer from '../../server'
-import User from '../../entity/User'
-import Role, { RoleName } from '../../entity/Role'
-import UserInput from './UserInput/UserInput'
+import { mockRequest, mockToken } from '../../../../test/setup'
+import createServer from '../../../../server'
+import User from '../../../../entity/User'
+import Role, { RoleName } from '../../../../entity/Role'
+import UserInput from '../../UserInput/UserInput'
 
 let server: ApolloServer
 
