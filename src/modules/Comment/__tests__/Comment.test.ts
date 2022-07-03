@@ -1,7 +1,7 @@
 import { ApolloServer, ExpressContext, gql } from 'apollo-server-express'
-import { mockRequest } from '../../test/setup';
-import createServer from '../../server';
-import Task from '../../entity/Task';
+import { mockRequest } from '../../../test/setup';
+import createServer from '../../../server';
+import Task from '../../../entity/Task';
 
 let server: ApolloServer
 
